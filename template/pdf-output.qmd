@@ -1,0 +1,242 @@
+---
+format: 
+  pdf:
+    pdf-engine: lualatex
+    documentclass: article
+    fontsize: 11pt
+    mainfont: "Arial"        # font family
+    include-in-header: header.tex
+geometry:
+  - a4paper
+  - left=1cm
+  - right=1.5cm
+  - top=1.5cm
+  - bottom=0.5cm
+params:
+  pt_vorname: NULL
+  pt_name: NULL
+  pt_praxis: NULL
+  pt_adresse: NULL
+  pt_plz: NULL
+  pt_tel: NULL
+  pt_mail: NULL
+  pt_zsr: NULL
+  pt_knr: NULL
+  pt_emfit: NULL
+  pt_pilat_nr: NULL
+  abo_type: NULL
+  abo_start: NULL
+  abo_end: NULL
+  abo_price: NULL
+  mem_kk: NULL
+  mem_zv: NULL
+  mem_vnr: NULL
+  mem_name: NULL
+  mem_vorname: NULL
+  mem_adresse: NULL
+  mem_plz: NULL
+  mem_mail: NULL
+---
+
+# Gesundheitsförderung / Präventions-Training 2024
+
+Dieses Formular bestätigt, dass die versicherte Person ein gesundheitsförderndes Training bei einem \
+PilatesCare Anbieter besucht hat.
+
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+# libraries
+library(flextable)
+library(officer)
+library(dplyr)
+
+# define a theme that will be used for all flextables
+my_theme <- function(x, ...) {
+  std_border <- fp_border(width = 1, color = "black") 
+  
+  x <- x |> 
+    font(part = "all", fontname = "Arial") |> 
+    fontsize(part = "body", size = 11) |> # make text in cells 11pt
+    fontsize(part = "header", size = 12) |> # make text in header 12pt
+    bold(part = "header") |>  # make text in header bold
+    bg(bg = "gray70", part = "header") |>  # grey background in header
+    border_remove() |> 
+    border_outer(part= "all", border = std_border) # make outer border
+
+  x
+}
+
+# construct data for the first table
+data <- data.frame(
+  col1 = c("Name", "Vorname", "Praxis", "Adresse", "PLZ/Ort", "Tel.", "E-Mail"),
+  col2 = c(params$pt_name, params$pt_vorname, params$pt_praxis, params$pt_adresse, params$pt_plz, params$pt_tel, params$pt_mail),
+  col3 = c("ZSR-Nummer", "K-Nummer", "EMfit-Nummer", "", "", "", ""),
+  col4 = c(params$pt_zsr, params$pt_knr, params$pt_emfit, "", "", "", "")
+  )
+
+# construct the flextable
+ft <- flextable(data)
+ft <- set_header_labels(ft, 
+                        col1 = "Anbieter", 
+                        col2 = "",
+                        col3 = paste("PilatesCare Mitglieder-Nr.:", params$pt_pilat_nr),
+                        col4 = "")
+
+# apply the theme
+ft <- my_theme(ft)
+
+# merge col3 and col4 in header
+ft <- merge_at(ft, i = 1, j = 3:4, part = "header") 
+
+# set fixed width
+ft <- set_table_properties(
+  ft,
+  layout = "fixed",
+  width = 1
+)
+
+# define widths -> total width 18cm
+ft <- width(ft, j = 1, width = 2, unit = "cm")
+ft <- width(ft, j = 2, width = 8, unit = "cm")
+ft <- width(ft, j = 3, width = 3, unit = "cm")
+ft <- width(ft, j = 4, width = 5, unit = "cm")
+
+# return flextable
+ft
+```
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+# build a switch that defines if checkboxes should be filled or not based on abo_type
+checked <- switch(
+  as.character(params$abo_type),
+  "10" = c(TRUE, FALSE, FALSE),
+  "3"  = c(FALSE, TRUE, FALSE),
+  "6"  = c(FALSE, FALSE, TRUE),
+  c(FALSE, FALSE, FALSE)
+)
+
+# build the data for table
+data <- data.frame(
+  col1 = c("", "Abo-Beginn:", "Preis: CHF", "Für die Qualitätskontrolle kann sich die Krankenkasse bei PilatesCare erkundigen, ob der oben erwähnte \nAnbieter die Voraussetzung als PilatesCare REHA-TrainerIn erfüllt. www.pilatescare.ch / info@pilatescare.ch"),
+  col2 = c("", params$abo_start, params$abo_price, ""),
+  col3 = c("", "Abo-Ende:", "", ""),
+  col4 = c("", params$abo_end, "", "")
+)
+
+# build flextable
+ft <- flextable(data)
+ft <- set_header_labels(ft,
+                        col1 = "Kurs PilatesCare Training",
+                        col2 = "",
+                        col3 = "",
+                        col4 = "")
+
+# replace the first cell of the flextable with three checkboxes based on the switch
+ft <- compose(
+  ft,
+  i = 1,
+  j = 1,
+  value = as_paragraph(
+    
+    as_chunk(
+      ifelse(checked[1], "■", "□"),
+      props = fp_text(font.size = 16)
+    ),
+    " 10er-Abo    ",
+    
+    as_chunk(
+      ifelse(checked[2], "■", "□"),
+      props = fp_text(font.size = 16)
+    ),
+    " 3-Monats-Abo    ",
+    
+    as_chunk(
+      ifelse(checked[3], "■", "□"),
+      props = fp_text(font.size = 16)
+    ),
+    " 6-Monats-Abo"
+  )
+)
+
+# apply the previously defined theme for the flextable
+ft <- my_theme(ft)
+
+# merge col 1-4 in header
+ft <- merge_at(ft, i = 1, j = 1:4, part = "header")
+
+# merge col 1-4 in row 1
+ft <- merge_at(ft, i = 1, j = 1:4, part = "body")
+
+# merge col 1-4 in row 4
+ft <- merge_at(ft, i = 4, j = 1:4, part = "body")
+
+# make text smaller in row 4
+ft <- fontsize(ft, i = 4, j = 1, size = 10, part = "body")
+
+# set fixed width
+ft <- set_table_properties(
+  ft,
+  layout = "fixed",
+  width = 1
+)
+
+# define widths -> total width 18cm
+ft <- width(ft, j = 1, width = 3, unit = "cm")
+ft <- width(ft, j = 2, width = 4, unit = "cm")
+ft <- width(ft, j = 3, width = 3, unit = "cm")
+ft <- width(ft, j = 4, width = 8, unit = "cm")
+
+# return flextable
+ft
+```
+
+
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+# build the data for the third table
+data <- data.frame(
+  col1 = c("Name der Krankenkasse", "Zusatzversicherung", "Versicherungs-Nummer", "Name", "Vorname", "Adresse", "PLZ/Ort", "E-Mail"),
+  col2 = c(params$mem_kk, params$mem_zv, params$mem_vnr, params$mem_name, params$mem_vorname, params$mem_adresse, params$mem_plz, params$mem_mail)
+  )
+
+# build flextable
+ft <- flextable(data)
+ft <- set_header_labels(ft,
+                        col1 = "Versicherte Person",
+                        col2 = ""
+                        )
+# apply theme
+ft <- my_theme(ft)
+
+# merge col1 and col2 in header
+ft <- merge_at(ft, i = 1, j = 1:2, part = "header")
+
+# set fixed width
+ft <- set_table_properties(
+  ft,
+  layout = "fixed",
+  width = 1
+)
+
+# define widths -> total width 18cm
+# note: somehow, 18cm seems to be a bit small with only two columns (maybe because of col seperators?) -> that's why I used total width of 18.3cm here
+ft <- width(ft, j = 1, width = 5, unit = "cm")
+ft <- width(ft, j = 2, width = 13.3, unit = "cm")
+
+# return flextable
+ft
+```
+
+Ort und Datum: Opfikon, `r format(Sys.Date(), "%d.%m.%Y")`
+
+\begin{multicols}{2}
+
+Unterschrift Anbieter \\
+\includegraphics[width=6.5cm]{"../signature/signed_line.png"}
+
+\columnbreak
+
+Unterschrift versicherte Person \\
+\includegraphics[width=6.5cm]{"../signature/unsigned_line.png"}
+
+\end{multicols}
