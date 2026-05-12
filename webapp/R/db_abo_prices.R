@@ -21,3 +21,13 @@ update_abo_price <- function(con, course_id, abo_id, abo_price) {
     )
   )
 }
+
+get_abo_price <- function(con, course_id, abo_id) {
+  dbGetQuery(
+    con,
+    "SELECT abo_price FROM abo_prices WHERE (course_id, abo_id) = (?,?)",
+    params = list(
+      course_id, abo_id
+    )
+  )
+}
