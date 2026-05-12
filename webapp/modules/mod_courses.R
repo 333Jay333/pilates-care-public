@@ -167,6 +167,13 @@ mod_courses_server <- function(id, con, global_refresh) {
     # CREATE course
     observeEvent(input$add, {
       insert_course(con, input$kursname, input$location)
+      
+      course_id <- get_course_id_kursname(con, input$kursname)$course_id
+      
+      # insert default abo prices for this course
+      insert_abo_price(con, course_id, 10, 300)
+      insert_abo_price(con, course_id, 3, 350)
+      insert_abo_price(con, course_id, 6, 700)
 
       global_refresh$courses <- global_refresh$courses + 1
     })

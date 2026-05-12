@@ -83,6 +83,18 @@ init_db <- function(db) {
     )"
   )
   
+  # create abo_prices table
+  dbExecute(
+    db,
+    "CREATE TABLE IF NOT EXISTS abo_prices (
+      course_id INTEGER NOT NULL,
+      abo_id INTEGER NOT NULL,
+      abo_price INTEGER NOT NULL DEFAULT 300,
+      PRIMARY KEY (course_id, abo_id),
+      FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE
+    )"
+  )
+  
   # create attendance table
   dbExecute(
     db,
