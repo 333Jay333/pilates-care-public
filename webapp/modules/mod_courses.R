@@ -171,9 +171,9 @@ mod_courses_server <- function(id, con, global_refresh) {
       course_id <- get_course_id_kursname(con, input$kursname)$course_id
       
       # insert default abo prices for this course
-      insert_abo_price(con, course_id, 10, 300)
-      insert_abo_price(con, course_id, 3, 350)
-      insert_abo_price(con, course_id, 6, 700)
+      insert_abo_price(con, course_id, 10, 300) # 10er Abo
+      insert_abo_price(con, course_id, 3, 350) # 3-Monats-Abo
+      insert_abo_price(con, course_id, 6, 700) # 6-Monats-Abo
 
       global_refresh$courses <- global_refresh$courses + 1
     })

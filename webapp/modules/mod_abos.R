@@ -21,7 +21,7 @@ mod_abos_ui <- function(id) {
     
     numericInput(ns("new_price"), "Neuer Abo-Preis", value = 300, min = 0, step = 10),
     
-    actionButton(ns("update_price"), "Abo-Preis anpassen", disabled = TRUE)
+    actionButton(ns("update_price"), "Abo-Preis anpassen")
 
   )
 }
@@ -42,6 +42,18 @@ mod_abos_server <- function(id, con, global_refresh) {
         session,
         "course",
         choices = choices_courses
+      )
+    })
+    
+    observeEvent(input$abo, {
+      req(input$course)
+      
+      price <- get_abo_price(con, input$course, input$abo)$abo_price
+      
+      updateNumericInput(
+        session,
+        "new_price",
+        value = price
       )
     })
 
