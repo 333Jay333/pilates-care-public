@@ -17,8 +17,6 @@ mod_abos_ui <- function(id) {
     
     selectInput(ns("abo"), "Abo wählen", choices = choices_abos),
     
-    textOutput(ns("old_price")),
-    
     numericInput(ns("new_price"), "Neuer Abo-Preis", value = 300, min = 0, step = 10),
     
     actionButton(ns("update_price"), "Abo-Preis anpassen")
@@ -45,6 +43,7 @@ mod_abos_server <- function(id, con, global_refresh) {
       )
     })
     
+    # change value for price input based on selected inputs
     observeEvent(input$abo, {
       req(input$course)
       
@@ -55,6 +54,24 @@ mod_abos_server <- function(id, con, global_refresh) {
         "new_price",
         value = price
       )
+    })
+    observeEvent(input$course, {
+      req(input$abo)
+      
+      price <- get_abo_price(con, input$course, input$abo)$abo_price
+      
+      updateNumericInput(
+        session,
+        "new_price",
+        value = price
+      )
+    })
+    
+    # UPDATE
+    observeEvent(input$update_price, {
+      req(input$course, input$abo, input$new_price)
+      
+      update_abo_price(con, input$course, input$abo, input$new_price)
     })
 
   })
