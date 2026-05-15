@@ -7,6 +7,14 @@ mod_abos_ui <- function(id) {
   )
   
   tagList(
+    h3("Abos verwalten"),
+    
+    h4("Abgelaufene Abos"),
+    
+    
+    
+    hr(),
+    
     h3("Abo-Preise"),
     
     hr(),
