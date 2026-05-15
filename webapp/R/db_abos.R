@@ -18,6 +18,21 @@ insert_abo_end <- function(con, user_id, abo_id, abo_start, abo_end) {
   )
 }
 
+update_abo_end <- function(con, user_id, abo_id, abo_start, abo_end) {
+  dbExecute(
+    con,
+    "
+    UPDATE abos
+    SET abo_end = ?
+    WHERE (user_id, abo_id, abo_start) = (?,?,?)
+    ",
+    params = list(
+      abo_end,
+      user_id, abo_id, abo_start
+    )
+  )
+}
+
 get_abos <- function(con) {
   dbGetQuery(
     con,
