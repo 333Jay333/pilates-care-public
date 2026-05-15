@@ -94,6 +94,8 @@ mod_certificate_server <- function(id, con, global_refresh) {
           member <- input$members[i]
           member_data <- get_member_user_id(con, member)
           abo_data <- get_abo_user_id(con, member)
+          course_membership <- get_course_membership_user_id(con, member)$course_id
+          abo_price <- get_abo_price(con, course_membership, abo_data$abo_id)
 
           incProgress(1/n, detail = paste("Erstelle Zertifikat für", paste(member_data$vorname, member_data$name)))
           
@@ -116,7 +118,7 @@ mod_certificate_server <- function(id, con, global_refresh) {
                   abo_type = abo_data$abo_id,
                   abo_start = format(as.Date(abo_data$abo_start), "%d.%m.%Y"),
                   abo_end = format(as.Date(abo_data$abo_end), "%d.%m.%Y"), # need to adjust this for abo 10
-                  abo_price = 300,
+                  abo_price = abo_price,
                   mem_kk = member_data$kk,
                   mem_zv = member_data$zv,
                   mem_vnr = member_data$vnr,
