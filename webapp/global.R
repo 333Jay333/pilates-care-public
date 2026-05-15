@@ -12,6 +12,7 @@ source("R/db_members.R")
 source("R/db_courses.R")
 source("R/db_course_memberships.R")
 source("R/db_abos.R")
+source("R/db_abo_prices.R")
 source("R/db_course_dates.R")
 source("R/db_attendance.R")
 source("modules/mod_therapists.R") # module for therapists
@@ -35,6 +36,9 @@ db <- dbPool(
 
 # initialise db
 init_db(db)
+
+# enable foreign keys for the db -> this is needed in SQLite
+dbExecute(db, "PRAGMA foreign_keys = ON")
 
 # ---- Close the connection to the db when the app stops ----
 onStop(function() {

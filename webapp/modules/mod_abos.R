@@ -1,32 +1,26 @@
 mod_abos_ui <- function(id) {
   ns <- NS(id)
   
-  choices_still_left <- setNames(
-    c(3:1), # what server receives
-    c("3 oder weniger", "2 oder weniger", "1 oder weniger") # what user sees
-  )
-  
-  choices_weeks_still_left <- setNames(
-    c(6:1), # what server receives
-    c(paste(rep(6:1), "oder weniger")) # what user sees
+  choices_abos <- setNames(
+    c(10,3,6), # values (what server receives)
+    c("10er-Abo", "3-Monats-Abo", "6-Monats-Abo") # labels (what user sees)
   )
   
   tagList(
-    h3("10er Abos"),
+    h3("Abo-Preise"),
     
     hr(),
     
-    selectInput(ns("still_left"), "Wie viele Termine noch übrig?", choices = choices_still_left, selected = 3),
+    h4("Abo-Preise anpassen"),
     
-    dataTableOutput(ns("abo_10_soon_done")),
+    selectInput(ns("course"), "Kurs wählen", choices = NULL),
     
-    hr(),
+    selectInput(ns("abo"), "Abo wählen", choices = choices_abos),
     
-    h3("3-Monats-Abo und 6-Monats-Abo"),
+    numericInput(ns("new_price"), "Neuer Abo-Preis", value = 300, min = 0, step = 10),
     
-    selectInput(ns("weeks_still_left"), "Wie viele Wochen noch übrig?", choices = choices_weeks_still_left, selected = 6),
-    
-    dataTableOutput(ns("abo_month_soon_done"))
+    actionButton(ns("update_price"), "Abo-Preis anpassen")
+
   )
 }
 
@@ -34,77 +28,51 @@ mod_abos_ui <- function(id) {
 mod_abos_server <- function(id, con, global_refresh) {
   moduleServer(id, function(input, output, session) {
     
-    data_abo_10 <- reactive({
-      req(input$still_left)
-      
-      global_refresh$abos   # important: without this, it doesn't get refreshed when abos change
-      members <- get_members_abo_10(con)
-      attended <- members |> select(user_id, vorname, name)
-      attended$n <- 0
-      
-      for (i in 1:nrow(members)) {
-        n_attended <- nrow(get_attendance_user_id(con, members[i,1]))
-        attended[i,ncol(attended)] <- n_attended # last column is for storing number of courses attended
-      }
-      
-      # delete duplicate rows from attended
-      attended <- distinct(attended)
-      
-      # add still_left column to attended
-      attended <- attended |> mutate(
-        still_left = 10 - n
+    # update choices for input$course -> gets refreshed if new courses get added
+    observeEvent(global_refresh$courses, {
+      courses <- get_courses(con)
+      choices_courses <- setNames(
+        courses$course_id, # values (what server receives)
+        courses$kursname # labels (what user sees)
       )
       
-      # filter according to user input how many should be left
-      attended <- attended |> filter(still_left <= input$still_left) 
-      
-      # make a nice version of the df for the ui
-      attended_display <- attended |> 
-        select(name, vorname, still_left) |> 
-        arrange(still_left) |> 
-        rename(
-          "Name" = name,
-          "Vorname" = vorname,
-          "Übrige Termine" = still_left
-        )
-      
-      attended_display # return nice version
+      updateSelectInput(
+        session,
+        "course",
+        choices = choices_courses
+      )
     })
     
-    output$abo_10_soon_done <- renderDT({
-      req(input$still_left)
+    # change value for price input based on selected inputs
+    observeEvent(input$abo, {
+      req(input$course)
       
-      data_abo_10()
+      price <- get_abo_price(con, input$course, input$abo)$abo_price
+      
+      updateNumericInput(
+        session,
+        "new_price",
+        value = price
+      )
+    })
+    observeEvent(input$course, {
+      req(input$abo)
+      
+      price <- get_abo_price(con, input$course, input$abo)$abo_price
+      
+      updateNumericInput(
+        session,
+        "new_price",
+        value = price
+      )
     })
     
-    data_abo_month <- reactive({
-      req(input$weeks_still_left)
+    # UPDATE
+    observeEvent(input$update_price, {
+      req(input$course, input$abo, input$new_price)
       
-      global_refresh$abos   # important: without this, it doesn't get refreshed when abos change
-      
-      members <- get_members_abo_month(con)
-      members$abo_end <- as.Date(members$abo_end)
-      
-      still_left <- today() + 7 * as.integer(input$weeks_still_left)
-      
-      members_filtered <- members |> 
-        filter(abo_end <= still_left) |> 
-        arrange(abo_end) |> 
-        mutate(abo_end = format(abo_end, "%d.%m.%Y")) |> 
-        select(vorname, name, abo_end) |> 
-        rename(
-          "Vorname" = vorname,
-          "Name" = name,
-          "Abo gültig bis" = abo_end
-        )
-      
-      members_filtered # return
+      update_abo_price(con, input$course, input$abo, input$new_price)
     })
-    
-    output$abo_month_soon_done <- renderDT({
-      req(input$weeks_still_left)
-      
-      data_abo_month()
-    })
+
   })
 }

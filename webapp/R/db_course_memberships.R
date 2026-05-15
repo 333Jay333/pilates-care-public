@@ -21,3 +21,13 @@ get_course_members_course_id <- function(con, course_id) {
     )
   )
 }
+
+get_course_membership_user_id <- function(con, user_id) {
+  dbGetQuery(
+    con,
+    "SELECT * FROM course_memberships WHERE user_id = ?",
+    params = list(
+      user_id
+    )
+  )
+}
