@@ -1,13 +1,14 @@
-insert_abo <- function(con, user_id, abo_id, abo_start) {
+insert_abo <- function(con, user_id, abo_type, abo_start) {
   dbExecute(
     con,
-    "INSERT OR IGNORE INTO abos (user_id, abo_id, abo_start) VALUES (?,?,?)",
+    "INSERT OR IGNORE INTO abos (user_id, abo_type, abo_start) VALUES (?,?,?)",
     params = list(
-      user_id, abo_id, abo_start
+      user_id, abo_type, abo_start
     )
   )
 }
 
+# to adjust
 insert_abo_end <- function(con, user_id, abo_id, abo_start, abo_end) {
   dbExecute(
     con,
@@ -18,6 +19,7 @@ insert_abo_end <- function(con, user_id, abo_id, abo_start, abo_end) {
   )
 }
 
+# to adjust
 update_abo_end <- function(con, user_id, abo_id, abo_start, abo_end) {
   dbExecute(
     con,
@@ -66,7 +68,7 @@ get_attended_courses_abo_10 <- function(con) {
       ON m.user_id = ab.user_id
     LEFT JOIN attendance a 
       ON m.user_id = a.user_id
-    WHERE ab.abo_id = 10
+    WHERE ab.abo_type = 10
     GROUP BY m.user_id, m.vorname, m.name
     "
   )
