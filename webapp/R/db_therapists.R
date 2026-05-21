@@ -1,7 +1,7 @@
 insert_therapist <- function(con, vorname, name, praxis, adresse, plz, tel, mail, zsr, knr, emfit, pilat_nr) {
   dbExecute(
     con,
-    "INSERT INTO therapists (vorname, name, praxis, adresse, plz, tel, mail, zsr, knr, emfit, pilat_nr) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+    "INSERT OR IGNORE INTO therapists (vorname, name, praxis, adresse, plz, tel, mail, zsr, knr, emfit, pilat_nr) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
     params = list(
       vorname, name, praxis, adresse, plz, tel, mail, zsr, knr, emfit, 
       as.integer(pilat_nr)

@@ -1,7 +1,7 @@
 insert_abo_price <- function(con, course_id, abo_id, abo_price) {
   dbExecute(
     con,
-    "INSERT INTO abo_prices (course_id, abo_id, abo_price) VALUES (?,?,?)",
+    "INSERT OR IGNORE INTO abo_prices (course_id, abo_id, abo_price) VALUES (?,?,?)",
     params = list(
       course_id, abo_id, abo_price
     )

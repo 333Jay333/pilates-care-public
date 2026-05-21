@@ -1,7 +1,7 @@
 insert_course_member <- function(con, user_id, course_id) {
   dbExecute(
     con,
-    "INSERT INTO course_memberships (user_id, course_id) VALUES (?,?)",
+    "INSERT OR IGNORE INTO course_memberships (user_id, course_id) VALUES (?,?)",
     params = list(
       user_id, course_id
     )
