@@ -74,11 +74,12 @@ init_db <- function(db) {
   dbExecute(
     db,
     "CREATE TABLE IF NOT EXISTS abos (
+      abo_id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL,
-      abo_id INTEGER NOT NULL,
+      abo_type INTEGER NOT NULL,
       abo_start DATE NOT NULL,
       abo_end DATE DEFAULT ' ',
-      PRIMARY KEY (user_id, abo_id),
+      abo_status TEXT DEFAULT 'active',
       FOREIGN KEY (user_id) REFERENCES members(user_id) ON DELETE CASCADE
     )"
   )
@@ -88,9 +89,9 @@ init_db <- function(db) {
     db,
     "CREATE TABLE IF NOT EXISTS abo_prices (
       course_id INTEGER NOT NULL,
-      abo_id INTEGER NOT NULL,
+      abo_type INTEGER NOT NULL,
       abo_price INTEGER NOT NULL DEFAULT 300,
-      PRIMARY KEY (course_id, abo_id),
+      PRIMARY KEY (course_id, abo_type),
       FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE
     )"
   )
