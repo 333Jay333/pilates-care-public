@@ -1,7 +1,7 @@
 insert_member <- function(con, kk, zv, vnr, vorname, name, adresse, plz, mail) {
   dbExecute(
     con,
-    "INSERT INTO members (kk, zv, vnr, vorname, name, adresse, plz, mail) VALUES (?,?,?,?,?,?,?,?)",
+    "INSERT OR IGNORE INTO members (kk, zv, vnr, vorname, name, adresse, plz, mail) VALUES (?,?,?,?,?,?,?,?)",
     params = list(
       kk, zv, vnr, vorname, name, adresse, plz, mail
     )

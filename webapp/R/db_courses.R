@@ -1,7 +1,7 @@
 insert_course <- function(con, kursname, location) {
   dbExecute(
     con,
-    "INSERT INTO courses (kursname, location) VALUES (?,?)",
+    "INSERT OR IGNORE INTO courses (kursname, location) VALUES (?,?)",
     params = list(
       kursname, location
     )
