@@ -9,9 +9,13 @@ mod_abos_ui <- function(id) {
   tagList(
     h3("Abos verwalten"),
     
-    h4("Abgelaufene Abos"),
+    hr(),
     
+    h4("Abgelaufene 10er-Abos"),
     
+    dataTableOutput(ns("abo_10_done")),
+    
+    actionButton(ns("archive_abo_10"), "Abos archivieren", disabled = FALSE),
     
     hr(),
     
@@ -80,6 +84,37 @@ mod_abos_server <- function(id, con, global_refresh) {
       req(input$course, input$abo, input$new_price)
       
       update_abo_price(con, input$course, input$abo, input$new_price)
+    })
+    
+    # Abgelaufene Abos
+    
+    ## 10er Abos
+    
+    # table with expired abos
+    data_abo_10 <- reactive({
+      
+      global_refresh$abos   # important: without this, it doesn't get refreshed when abos change
+      
+      attended_courses <- get_attended_courses_abo_10(con)
+      
+      # filter
+      attended_courses <- attended_courses |> filter(still_left == 0)
+      
+      # make a nice version of the df for the ui
+      attended_display <- attended_courses |> 
+        select(vorname, name, still_left) |> 
+        arrange(still_left) |> 
+        rename(
+          "Name" = name,
+          "Vorname" = vorname,
+          "Übrige Termine" = still_left
+        )
+      
+      attended_display # return nice version
+    })
+    
+    output$abo_10_done <- renderDT({
+      data_abo_10()
     })
 
   })
