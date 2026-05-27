@@ -13,9 +13,17 @@ mod_abos_ui <- function(id) {
     
     h4("Abgelaufene 10er-Abos"),
     
-    dataTableOutput(ns("abo_10_done")),
+    dataTableOutput(ns("abo_10_expired")),
     
     actionButton(ns("archive_abo_10"), "Abos archivieren", disabled = FALSE),
+    
+    hr(),
+    
+    h4("Abgelaufene Monats-Abos"),
+    
+    dataTableOutput(ns("abo_month_expired")),
+    
+    actionButton(ns("archive_abo_month"), "Abos archivieren", disabled = FALSE),
     
     hr(),
     
@@ -98,10 +106,16 @@ mod_abos_server <- function(id, con, global_refresh) {
       attended_courses <- get_attended_courses_abo_10(con)
       
       # filter
-      attended_courses <- attended_courses |> filter(still_left == 0)
+      abo_10_expired <- attended_courses |> filter(still_left == 0)
+      
+      # return
+      abo_10_expired
+    })
+    
+    output$abo_10_expired <- renderDT({
       
       # make a nice version of the df for the ui
-      attended_display <- attended_courses |> 
+      abo_10_expired_display <- data_abo_10_expired() |> 
         select(vorname, name, still_left) |> 
         arrange(still_left) |> 
         rename(
@@ -110,11 +124,13 @@ mod_abos_server <- function(id, con, global_refresh) {
           "Übrige Termine" = still_left
         )
       
-      attended_display # return nice version
-    })
-    
-    output$abo_10_done <- renderDT({
-      data_abo_10_expired()
+      # render
+      datatable(
+        abo_10_expired_display,
+        selection = "single",
+        options = list(pageLength = 10)
+      )
+      
     })
     
     ## Monats-Abos
@@ -125,9 +141,19 @@ mod_abos_server <- function(id, con, global_refresh) {
       members <- get_members_abo_month(con)
       members$abo_end <- as.Date(members$abo_end)
       
-      members_filtered <- members |> 
+      # filter
+      members_abo_month_expired <- members |> 
         filter(abo_end <= today()) |> 
-        arrange(abo_end) |> 
+        arrange(abo_end)
+      
+      # return
+      members_abo_month_expired 
+    })
+    
+    output$abo_month_expired <- renderDT({
+      
+      # make a nice version of the df for the ui
+      abo_month_expired_display <- data_abo_month_expired() |> 
         mutate(abo_end = format(abo_end, "%d.%m.%Y")) |> 
         select(vorname, name, abo_end) |> 
         rename(
@@ -136,7 +162,12 @@ mod_abos_server <- function(id, con, global_refresh) {
           "Abo gültig bis" = abo_end
         )
       
-      members_filtered # return
+      # render
+      datatable(
+        abo_month_expired_display,
+        selection = "single",
+        options = list(pageLength = 10)
+      )
     })
   })
 }
