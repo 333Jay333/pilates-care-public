@@ -15,6 +15,7 @@ source("R/db_abos.R")
 source("R/db_abo_prices.R")
 source("R/db_course_dates.R")
 source("R/db_attendance.R")
+source("R/services_abo.R")
 source("modules/mod_therapists.R") # module for therapists
 source("modules/mod_members.R")
 source("modules/mod_certificate.R")

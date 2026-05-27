@@ -81,21 +81,11 @@ mod_members_server <- function(id, con, global_refresh) {
       
       # 2. add member to course
       member <- get_member_vorname_name(con, input$vorname, input$name)
-      member_user_id <- member$user_id
       
-      insert_course_member(con, member_user_id, input$course)
+      insert_course_member(con, member$user_id, input$course)
       
       # 3. add abo for member
-      if (input$abo == 10) {
-        insert_abo(con, member_user_id, input$abo, input$abo_start)
-      } else { # calculate abo end automatically for 3 and 6 month abo
-        if (input$abo == 3) {
-          abo_end <- input$abo_start + 91 
-        } else {
-          abo_end <- input$abo_start + 183
-        }
-        insert_abo_end(con, member_user_id, input$abo, input$abo_start, abo_end)
-      }
+      add_abo(con, input$abo, member$user_id, input$abo_start)
       global_refresh$abos <- global_refresh$abos + 1
     })
     
