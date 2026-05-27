@@ -59,6 +59,7 @@ get_attended_courses_abo_10 <- function(con) {
       m.user_id,
       m.vorname,
       m.name,
+      ab.abo_id,
       COUNT(a.course_date_id) AS n_attended,
       (10 - COUNT(a.course_date_id)) AS still_left
     FROM members m

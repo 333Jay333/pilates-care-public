@@ -75,6 +75,7 @@ get_members_abo_month <- function(con) {
       m.user_id,
       m.vorname,
       m.name,
+      ab.abo_id,
       ab.abo_end
     FROM abos ab
     JOIN members m
