@@ -110,7 +110,7 @@ mod_abos_server <- function(id, con, global_refresh) {
       
       # make a nice version of the df for the ui
       abo_month_expired_display <- data_abo_month_expired() |> 
-        mutate(abo_end = format(abo_end, "%d.%m.%Y")) |> 
+        mutate(abo_end = format_swiss_date(abo_end)) |> 
         select(vorname, name, abo_end) |> 
         rename(
           "Vorname" = vorname,
@@ -129,6 +129,8 @@ mod_abos_server <- function(id, con, global_refresh) {
     
     
     # DELETE
+    
+    # SOMEWHERE, I STILL NEED TO IMPLEMENT THE UPDATE END DATE FOR THE 10 ABO
     
     # reactive value to store if a abo 10 or abo month is being archived
     rv_archive_type <- reactiveVal()

@@ -106,7 +106,7 @@ mod_attendance_server <- function(id, con, global_refresh) {
       
       req(input$course)
       choices_server <- get_course_dates_course_id_after_date(con, input$course, today()-31)$course_date
-      choices_names <- format(as.Date(choices_server, origin = "1970-01-01"), "%d.%m.%Y")
+      choices_names <- format_swiss_date_with_origin(choices_server)
       choices <- setNames(
         choices_server,
         choices_names
@@ -137,7 +137,7 @@ mod_attendance_server <- function(id, con, global_refresh) {
       
       req(input$course)
       choices_server <- get_course_dates_course_id_after_date(con, input$course, today()-3*31)$course_date
-      choices_names <- format(as.Date(choices_server, origin = "1970-01-01"), "%d.%m.%Y")
+      choices_names <- format_swiss_date_with_origin(choices_server)
       choices <- setNames(
         choices_server,
         choices_names
@@ -293,7 +293,7 @@ mod_attendance_server <- function(id, con, global_refresh) {
       req(input$course)
       global_refresh$attendance # don't forget this or it won't be reactive
       data <- get_attendance_course_id(con, input$course)
-      data$course_date <- format(as.Date(data$course_date, origin = "1970-01-01"), "%d.%m.%Y") # make dates for table readable
+      data$course_date <- format_swiss_date_with_origin(data$course_date) # make dates for table readable
       data # return
     })
     
