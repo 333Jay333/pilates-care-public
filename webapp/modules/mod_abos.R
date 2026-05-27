@@ -185,7 +185,10 @@ mod_abos_server <- function(id, con, global_refresh) {
           
           footer = tagList(
             
-            modalButton("Nein"),
+            actionButton(
+              ns("certificate_no"),
+              "Nein"
+            ),
             
             actionButton(
               ns("certificate_yes"),
@@ -244,6 +247,7 @@ mod_abos_server <- function(id, con, global_refresh) {
       if (length(data) > 0) {
         # archive the abo
         archive_abo(con, data$abo_id)
+        
         # ask the user if the current member should be added to certificate list
         show_certificate_modal()
       }
@@ -260,7 +264,15 @@ mod_abos_server <- function(id, con, global_refresh) {
       # close the previous modal
       removeModal()
       
-      # now update the reactive such that the list gets updated
+      # now update the global refresh such that the list gets updated
+      global_refresh$abos <- global_refresh$abos + 1
+    })
+    
+    observeEvent(input$certificate_no, {
+      # close the previous modal
+      removeModal()
+      
+      # now update the global refresh such that the list gets updated
       global_refresh$abos <- global_refresh$abos + 1
     })
     
