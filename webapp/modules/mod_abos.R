@@ -91,7 +91,7 @@ mod_abos_server <- function(id, con, global_refresh) {
     ## 10er Abos
     
     # table with expired abos
-    data_abo_10 <- reactive({
+    data_abo_10_expired <- reactive({
       
       global_refresh$abos   # important: without this, it doesn't get refreshed when abos change
       
@@ -114,8 +114,29 @@ mod_abos_server <- function(id, con, global_refresh) {
     })
     
     output$abo_10_done <- renderDT({
-      data_abo_10()
+      data_abo_10_expired()
     })
-
+    
+    ## Monats-Abos
+    data_abo_month_expired <- reactive({
+      
+      global_refresh$abos   # important: without this, it doesn't get refreshed when abos change
+      
+      members <- get_members_abo_month(con)
+      members$abo_end <- as.Date(members$abo_end)
+      
+      members_filtered <- members |> 
+        filter(abo_end <= today()) |> 
+        arrange(abo_end) |> 
+        mutate(abo_end = format(abo_end, "%d.%m.%Y")) |> 
+        select(vorname, name, abo_end) |> 
+        rename(
+          "Vorname" = vorname,
+          "Name" = name,
+          "Abo gültig bis" = abo_end
+        )
+      
+      members_filtered # return
+    })
   })
 }
