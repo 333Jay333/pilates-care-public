@@ -236,6 +236,11 @@ mod_abos_server <- function(id, con, global_refresh) {
       
       # safety check that row is selected
       if (length(data) > 0) {
+        # in case it is a 10 abo, set the end date to today
+        if (rv_archive_type() == "10") {
+          update_abo_end(con, data$abo_id, today())
+        }
+        
         # archive the abo
         archive_abo(con, data$abo_id)
         
@@ -254,6 +259,7 @@ mod_abos_server <- function(id, con, global_refresh) {
       removeModal()
       
       # get selected row data
+      print(rv_archive_type())
       data <- get_selected_row_data(rv_archive_type())
       
       # safety check
@@ -266,8 +272,11 @@ mod_abos_server <- function(id, con, global_refresh) {
         return()
       }
     })
+    
     observeEvent(input$confirm_new_abo, {
       req(input$abo, input$abo_start)
+      
+      print("yes")
       
       # get selected row data
       data <- get_selected_row_data(rv_archive_type())
@@ -276,8 +285,19 @@ mod_abos_server <- function(id, con, global_refresh) {
       add_abo(con, input$abo, data$user_id, input$abo_start)
       global_refresh$abos <- global_refresh$abos + 1
       
+      print("new abo added")
+      
+      # in case the old abo is a 10 abo, set the end date to today
+      if (rv_archive_type() == "10") {
+        update_abo_end(con, data$abo_id, today())
+      }
+      
+      print(data$abo_id)
+      
       # archive the old abo
       archive_abo(con, data$abo_id)
+      
+      print("old abo archived")
       
       # ask the user if the current member should be added to certificate list
       show_certificate_modal()
@@ -286,9 +306,15 @@ mod_abos_server <- function(id, con, global_refresh) {
     # ask the user about certificates
     observeEvent(input$certificate_yes, {
       # append current user_id to the list for making certificates at the end
+      print(rv_archive_type())
+      
+      print(get_selected_row_data(rv_archive_type())$user_id)
+      
       certificate_list(
         c(certificate_list(), get_selected_row_data(rv_archive_type())$user_id)
       )
+      
+      print(certificate_list())
       
       # close the previous modal
       removeModal()
