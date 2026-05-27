@@ -15,7 +15,7 @@ mod_abos_ui <- function(id) {
     
     dataTableOutput(ns("abo_10_expired")),
     
-    actionButton(ns("archive_abo_10"), "Abos archivieren", disabled = FALSE),
+    actionButton(ns("archive_abo_10"), "Abo archivieren", disabled = FALSE),
     
     hr(),
     
@@ -23,7 +23,7 @@ mod_abos_ui <- function(id) {
     
     dataTableOutput(ns("abo_month_expired")),
     
-    actionButton(ns("archive_abo_month"), "Abos archivieren", disabled = FALSE),
+    actionButton(ns("archive_abo_month"), "Abo archivieren", disabled = FALSE),
     
     hr(),
     
@@ -132,6 +132,7 @@ mod_abos_server <- function(id, con, global_refresh) {
     
     # reactive value to store if a abo 10 or abo month is being archived
     rv_archive_type <- reactiveVal()
+    certificate_list <- reactiveVal(integer())
     
     ## Modals
     show_archive_modal <- function() {
@@ -143,7 +144,7 @@ mod_abos_server <- function(id, con, global_refresh) {
           "Was soll nach der Abo-Archivierung passieren?",
           
           footer = tagList(
-            modalButton("Abbrechen"),
+            modalButton("Abbrechen"), # this button closes the modal when pressed
             
             actionButton(
               ns("archive_only"),
@@ -183,7 +184,8 @@ mod_abos_server <- function(id, con, global_refresh) {
           "Soll für diese Person am Schluss ein Zertifikat erstellt werden?",
           
           footer = tagList(
-            modalButton("Abbrechen"),
+            
+            modalButton("Nein"),
             
             actionButton(
               ns("certificate_yes"),
@@ -232,14 +234,34 @@ mod_abos_server <- function(id, con, global_refresh) {
     
     # in case abo only needs to be archived
     observeEvent(input$archive_only, {
+      # close the previous modal
       removeModal()
       
+      # get the selected row data
       data <- get_selected_row()
       
+      # safety check that row is selected
       if (length(data) > 0) {
+        # archive the abo
         archive_abo(con, data$abo_id)
+        # ask the user if the current member should be added to certificate list
         show_certificate_modal()
       }
+    })
+    
+    observeEvent(input$certificate_yes, {
+      # append to the list
+      certificate_list(
+        c(certificate_list(), get_selected_row()$user_id)
+      )
+      
+      print(certificate_list())
+      
+      # close the previous modal
+      removeModal()
+      
+      # now update the reactive such that the list gets updated
+      global_refresh$abos <- global_refresh$abos + 1
     })
     
     observeEvent(input$replace_abo, {

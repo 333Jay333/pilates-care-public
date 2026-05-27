@@ -82,6 +82,7 @@ get_attended_courses_abo_10 <- function(con) {
     LEFT JOIN attendance a 
       ON m.user_id = a.user_id
     WHERE ab.abo_type = 10
+      AND ab.abo_status = 'active'
     GROUP BY m.user_id, m.vorname, m.name
     "
   )

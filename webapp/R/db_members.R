@@ -80,8 +80,8 @@ get_members_abo_month <- function(con) {
     FROM abos ab
     JOIN members m
       ON ab.user_id = m.user_id
-    WHERE ab.abo_type = ? 
-      OR ab.abo_type = ?
+    WHERE (ab.abo_type = ? OR ab.abo_type = ?)
+      AND ab.abo_status = 'active'
     ",
     params = list(
       3, # 3 month abo has abo_type 3
