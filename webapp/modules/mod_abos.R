@@ -200,24 +200,13 @@ mod_abos_server <- function(id, con, global_refresh) {
     }
     
     ## functions
-    get_selected_row <- function() {
-      if (rv_archive_type() == "10") {
-        selected <- input$abo_10_expired_rows_selected
+    get_selected_row_data <- function(archive_type) {
+      if (archive_type == "10") {
+        selected_row <- input$abo_10_expired_rows_selected
+        data <- data_abo_10_expired()[selected_row, ]
       } else {
-        selected <- input$abo_month_expired_rows_selected
-      }
-
-      # Safety check
-      if (length(selected) == 0) {
-        showNotification("Bitte Teilnehmer*in auswählen", type = "warning")
-        return()
-      }
-
-      # get selected row data
-      if (rv_archive_type() == "10") {
-        data <- data_abo_10_expired()[selected, ]
-      } else {
-        data <- data_abo_month_expired()[selected, ]
+        selected_row <- input$abo_month_expired_rows_selected
+        data <- data_abo_month_expired()[selected_row, ]
       }
       
       # return
@@ -241,7 +230,7 @@ mod_abos_server <- function(id, con, global_refresh) {
       removeModal()
       
       # get the selected row data
-      data <- get_selected_row()
+      data <- get_selected_row_data(rv_archive_type())
       
       # safety check that row is selected
       if (length(data) > 0) {
@@ -250,21 +239,59 @@ mod_abos_server <- function(id, con, global_refresh) {
         
         # ask the user if the current member should be added to certificate list
         show_certificate_modal()
+      } else {
+        removeModal()
+        showNotification("Bitte Teilnehmer*in auswählen", type = "warning")
+        return()
       }
     })
     
-    observeEvent(input$certificate_yes, {
-      # append to the list
-      certificate_list(
-        c(certificate_list(), get_selected_row()$user_id)
-      )
+    # in case new abo gets created
+    observeEvent(input$replace_abo, {
+      # close previous modal
+      removeModal()
       
-      print(certificate_list())
+      # get selected row data
+      data <- get_selected_row_data(rv_archive_type())
+      
+      # safety check
+      if (length(data) > 0) {
+        # show the modal for adding the abo
+        show_add_abo_modal()
+      } else {
+        removeModal()
+        showNotification("Bitte Teilnehmer*in auswählen", type = "warning")
+        return()
+      }
+    })
+    observeEvent(input$confirm_new_abo, {
+      req(input$abo, input$abo_start)
+      
+      # get selected row data
+      data <- get_selected_row_data(rv_archive_type())
+      
+      # add the new abo
+      add_abo(con, input$abo, data$user_id, input$abo_start)
+      global_refresh$abos <- global_refresh$abos + 1
+      
+      # archive the old abo
+      archive_abo(con, data$abo_id)
+      
+      # ask the user if the current member should be added to certificate list
+      show_certificate_modal()
+    })
+    
+    # ask the user about certificates
+    observeEvent(input$certificate_yes, {
+      # append current user_id to the list for making certificates at the end
+      certificate_list(
+        c(certificate_list(), get_selected_row_data(rv_archive_type())$user_id)
+      )
       
       # close the previous modal
       removeModal()
       
-      # now update the global refresh such that the list gets updated
+      # now update the global refresh such that the list of expired abos gets updated
       global_refresh$abos <- global_refresh$abos + 1
     })
     
@@ -272,20 +299,10 @@ mod_abos_server <- function(id, con, global_refresh) {
       # close the previous modal
       removeModal()
       
-      # now update the global refresh such that the list gets updated
+      # now update the global refresh such that the list of expired abos gets updated
       global_refresh$abos <- global_refresh$abos + 1
     })
     
-    observeEvent(input$replace_abo, {
-      removeModal()
-      
-      data <- get_selected_row()
-      
-      if (length(data) > 0) {
-        show_add_abo_modal()
-      }
-      
-    })
     
     # Abo price
     
