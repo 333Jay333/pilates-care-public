@@ -116,8 +116,8 @@ mod_certificate_server <- function(id, con, global_refresh) {
                   pt_emfit = therapist$emfit,
                   pt_pilat_nr = therapist$pilat_nr,
                   abo_type = abo_data$abo_type,
-                  abo_start = format(as.Date(abo_data$abo_start), "%d.%m.%Y"),
-                  abo_end = format(as.Date(abo_data$abo_end), "%d.%m.%Y"), # need to adjust this for abo 10
+                  abo_start = format_swiss_date(abo_data$abo_start),
+                  abo_end = format_swiss_date(abo_data$abo_end), # need to adjust this for abo 10
                   abo_price = abo_price,
                   mem_kk = member_data$kk,
                   mem_zv = member_data$zv,

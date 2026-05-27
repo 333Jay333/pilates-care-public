@@ -76,7 +76,7 @@ mod_abo_dashboard_server <- function(id, con, global_refresh) {
       members_filtered <- members |> 
         filter(abo_end <= still_left) |> 
         arrange(abo_end) |> 
-        mutate(abo_end = format(abo_end, "%d.%m.%Y")) |> 
+        mutate(abo_end = format_swiss_date(abo_end)) |> 
         select(vorname, name, abo_end) |> 
         rename(
           "Vorname" = vorname,
