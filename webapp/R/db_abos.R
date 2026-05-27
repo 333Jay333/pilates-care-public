@@ -8,29 +8,27 @@ insert_abo <- function(con, user_id, abo_type, abo_start) {
   )
 }
 
-# to adjust
-insert_abo_end <- function(con, user_id, abo_id, abo_start, abo_end) {
+insert_abo_end <- function(con, user_id, abo_type, abo_start, abo_end) {
   dbExecute(
     con,
-    "INSERT INTO abos (user_id, abo_id, abo_start, abo_end) VALUES (?,?,?,?)",
+    "INSERT INTO abos (user_id, abo_type, abo_start, abo_end) VALUES (?,?,?,?)",
     params = list(
-      user_id, abo_id, abo_start, abo_end
+      user_id, abo_type, abo_start, abo_end
     )
   )
 }
 
-# to adjust
-update_abo_end <- function(con, user_id, abo_id, abo_start, abo_end) {
+update_abo_end <- function(con, user_id, abo_type, abo_start, abo_end) {
   dbExecute(
     con,
     "
     UPDATE abos
     SET abo_end = ?
-    WHERE (user_id, abo_id, abo_start) = (?,?,?)
+    WHERE (user_id, abo_type, abo_start) = (?,?,?)
     ",
     params = list(
       abo_end,
-      user_id, abo_id, abo_start
+      user_id, abo_type, abo_start
     )
   )
 }

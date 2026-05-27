@@ -23,14 +23,14 @@ init_db <- function(db) {
     db,
     "CREATE TABLE IF NOT EXISTS members (
       user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-      kk TEXT NOT NULL,
-      zv TEXT NOT NULL,
-      vnr TEXT NOT NULL,
+      kk TEXT DEFAULT ' ',
+      zv TEXT DEFAULT ' ',
+      vnr TEXT DEFAULT ' ',
       vorname TEXT NOT NULL,
       name TEXT NOT NULL,
-      adresse TEXT NOT NULL,
-      plz TEXT NOT NULL,
-      mail TEXT NOT NULL,
+      adresse TEXT DEFAULT ' ',
+      plz TEXT DEFAULT ' ',
+      mail TEXT DEFAULT ' ',
       status TEXT DEFAULT 'active'
     )"
   )
