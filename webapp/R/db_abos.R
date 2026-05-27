@@ -33,6 +33,20 @@ update_abo_end <- function(con, user_id, abo_type, abo_start, abo_end) {
   )
 }
 
+archive_abo <- function(con, abo_id) {
+  dbExecute(
+    con,
+    "
+    UPDATE abos
+    SET abo_status = 'archived'
+    WHERE abo_id = ?
+    ",
+    params = list(
+      abo_id
+    )
+  )
+}
+
 get_abos <- function(con) {
   dbGetQuery(
     con,

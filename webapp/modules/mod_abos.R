@@ -175,6 +175,25 @@ mod_abos_server <- function(id, con, global_refresh) {
       )
     }
     
+    show_certificate_modal <- function() {
+      showModal(
+        modalDialog(
+          title = "Zertifikate",
+          
+          "Soll für diese Person am Schluss ein Zertifikat erstellt werden?",
+          
+          footer = tagList(
+            modalButton("Abbrechen"),
+            
+            actionButton(
+              ns("certificate_yes"),
+              "Zur Zertifikats-Liste hinzufügen"
+            )
+          )
+        )
+      )
+    }
+    
     ## functions
     get_selected_row <- function() {
       if (rv_archive_type() == "10") {
@@ -213,13 +232,24 @@ mod_abos_server <- function(id, con, global_refresh) {
     
     # in case abo only needs to be archived
     observeEvent(input$archive_only, {
-      print(get_selected_row())
+      removeModal()
+      
+      data <- get_selected_row()
+      
+      if (length(data) > 0) {
+        archive_abo(con, data$abo_id)
+        show_certificate_modal()
+      }
     })
     
     observeEvent(input$replace_abo, {
       removeModal()
       
-      show_add_abo_modal()
+      data <- get_selected_row()
+      
+      if (length(data) > 0) {
+        show_add_abo_modal()
+      }
       
     })
     
