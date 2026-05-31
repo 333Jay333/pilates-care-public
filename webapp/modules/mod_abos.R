@@ -27,6 +27,11 @@ mod_abos_ui <- function(id) {
     
     hr(),
     
+    # Archive Abo einfach so -> Liste von aktiven Abos
+    
+    # Neues Abo erstellen
+    # Check, dass es nicht schon ein aktives Abo gibt
+    
     h3("Abo-Preise"),
     
     hr(),

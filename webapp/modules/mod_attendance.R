@@ -276,26 +276,71 @@ mod_attendance_server <- function(id, con, global_refresh) {
       count <- 0
       log_skipped <- data.frame(
         user_id = integer(),
+        name = character(),
         reason = character(),
         stringsAsFactors = FALSE
       )
       for (member in as.integer(input$members)) {
         active_abo <- get_active_abo_user_id(con, member)
+        member_details <- get_member_user_id(con, member)
+        member_vorname_name <- paste(member_details$vorname, member_details$name)
         
         # safety check if attendance can be added for this abo
-        # STILL NEEDS TO BE IMPLEMENTED
-        # skip this member if no active abo
-        # if (nrow(active_abo) == 0) {
-        #   log_skipped <- rbind(
-        #     log_skipped,
-        #     data.frame(
-        #       user_id = member,
-        #       reason = "no active abo"
-        #     )
-        #   )
-        #   next
-        # }
         
+        # check if the abo 10 hasn't been used up
+        if (active_abo$abo_type == 10) {
+          still_left <- get_attended_courses_abo_10_user_id(con, member)$still_left
+          
+          # safety check if member has attended any courses
+          if (length(still_left > 1)) {
+            # check if the abo 10 hasn't been used up
+            if (still_left == 0) {
+              # log that this member gets skipped
+              log_skipped <- rbind(
+                log_skipped,
+                data.frame(
+                  user_id = member,
+                  name = member_vorname_name,
+                  reason = "10er Abo schon aufgebraucht"
+                )
+              )
+              # skip this member and move on to next one
+              next
+            } 
+          }
+        } else {
+          # for the month abos, check if they haven't expired
+          if (course_date_to_add > active_abo$abo_end) {
+            # log that this member gets skipped
+            log_skipped <- rbind(
+              log_skipped,
+              data.frame(
+                user_id = member,
+                name = member_vorname_name,
+                reason = "Abo nicht mehr gültig an dem Datum"
+              )
+            )
+            # skip this member and move on to next one
+            next
+          } 
+        }
+
+        # check that the attendance is before abo_start
+        if (course_date_to_add < active_abo$abo_start) {
+          # log that this member gets skipped
+          log_skipped <- rbind(
+            log_skipped,
+            data.frame(
+              user_id = member,
+              name = member_vorname_name,
+              reason = "Abo noch nicht gültig an dem Datum"
+            )
+          )
+          # skip this member and move on to next one
+          next
+        } 
+        
+        # if all safety checks have been passed, insert attendance for this member
         insert_attendance(con, course_date_id = course_date_id, user_id = member, abo_id = active_abo$abo_id)
         count <- count + 1
         global_refresh$attendance <- global_refresh$attendance + 1
@@ -308,16 +353,30 @@ mod_attendance_server <- function(id, con, global_refresh) {
         showNotification(paste("Anwesenheit für", count, "Personen hinzugefügt"), type = "message")
       }
       
-      # if (nrow(log_skipped) > 0) {
-      #   showNotification(
-      #     paste0(
-      #       "Skipped: ",
-      #       paste(log_skipped$user_id, collapse = ", ")
-      #     ),
-      #     type = "warning",
-      #     duration = 8
-      #   )
-      # }
+      if (nrow(log_skipped) > 0) {
+        message_ui <- list(
+          "Folgende Personen konnten nicht hinzugefügt werden:"
+        )
+        
+        for (row in 1:nrow(log_skipped)) {
+          message_body <- paste(
+            log_skipped$name[row],
+            log_skipped$reason[row],
+            sep = ": "
+          )
+          
+          message_ui <- c(
+            message_ui,
+            list(tags$br(), message_body)
+          )
+        }
+        
+        showNotification(
+          tagList(message_ui),
+          type = "warning",
+          duration = 20
+        )
+      }
     })
     
     # DELETE
