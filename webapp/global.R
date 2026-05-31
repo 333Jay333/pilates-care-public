@@ -28,7 +28,7 @@ db <- dbPool(
 # initialise db
 init_db(db)
 
-# enable foreign keys for the db -> this is needed in SQLite
+# enable foreign keys for the db -> this is needed in SQLite such that DELETE CASCADES work
 dbExecute(db, "PRAGMA foreign_keys = ON")
 
 # ---- Close the connection to the db when the app stops ----

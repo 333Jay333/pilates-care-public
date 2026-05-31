@@ -275,7 +275,12 @@ mod_attendance_server <- function(id, con, global_refresh) {
       # insert attendance
       count <- 0
       for (member in input$members) {
-        insert_attendance(con, course_date_id = course_date_id, user_id = member)
+        active_abo <- get_active_abo_user_id(con, member)
+        
+        # safety check if attendance can be added for this abo
+        # STILL NEEDS TO BE IMPLEMENTED
+        
+        insert_attendance(con, course_date_id = course_date_id, user_id = member, abo_id = active_abo$abo_id)
         count <- count + 1
         global_refresh$attendance <- global_refresh$attendance + 1
         global_refresh$abos <- global_refresh$abos + 1
