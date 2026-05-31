@@ -99,13 +99,26 @@ init_db <- function(db) {
   # create attendance table
   dbExecute(
     db,
-    "CREATE TABLE IF NOT EXISTS attendance (
+    "
+    CREATE TABLE IF NOT EXISTS attendance (
       course_date_id INTEGER NOT NULL,
       user_id INTEGER NOT NULL,
+      abo_id INTEGER NOT NULL,
       status TEXT DEFAULT 'anwesend',
-      PRIMARY KEY (course_date_id, user_id),
-      FOREIGN KEY (course_date_id) REFERENCES course_dates(course_date_id) ON DELETE CASCADE,
-      FOREIGN KEY (user_id) REFERENCES members(user_id) ON DELETE CASCADE
-    )"
+
+    PRIMARY KEY (course_date_id, user_id),
+
+    FOREIGN KEY (course_date_id)
+      REFERENCES course_dates(course_date_id)
+      ON DELETE CASCADE,
+
+    FOREIGN KEY (user_id)
+      REFERENCES members(user_id)
+      ON DELETE CASCADE,
+
+    FOREIGN KEY (abo_id)
+      REFERENCES abos(abo_id)
+    )
+    "
   )
 }

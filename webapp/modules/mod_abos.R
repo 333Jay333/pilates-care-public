@@ -135,7 +135,12 @@ mod_abos_server <- function(id, con, global_refresh) {
     # reactive value to store if a abo 10 or abo month is being archived
     rv_archive_type <- reactiveVal()
     selected_member <- reactiveVal(NULL)
-    certificate_list <- reactiveVal(integer())
+    certificate_list <- reactiveVal(
+      data.frame(
+        user_id = integer(),
+        abo_id = integer()
+      )
+    )
     
     ## Modals
     show_archive_modal <- function() {
@@ -307,9 +312,18 @@ mod_abos_server <- function(id, con, global_refresh) {
     
     # ask the user about certificates
     observeEvent(input$certificate_yes, {
-      # append current user_id to the list for making certificates at the end
+      
+      data <- selected_member()
+      
+      # append current user_id and abo_id to the list for making certificates at the end
       certificate_list(
-        c(certificate_list(), selected_member()$user_id)
+        rbind(
+          certificate_list(),
+          data.frame(
+            user_id = data$user_id,
+            abo_id = data$abo_id
+          )
+        )
       )
       
       print(certificate_list())

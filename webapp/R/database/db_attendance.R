@@ -1,9 +1,13 @@
-insert_attendance <- function(con, course_date_id, user_id) {
+insert_attendance <- function(con, course_date_id, user_id, abo_id) {
   dbExecute(
     con,
-    "INSERT OR IGNORE INTO attendance (course_date_id, user_id) VALUES (?,?)",
+    "INSERT OR IGNORE INTO attendance 
+      (course_date_id, user_id, abo_id) 
+      VALUES (?,?,?)",
     params = list(
-      course_date_id, user_id
+      course_date_id, 
+      user_id,
+      abo_id
     )
   )
 } # ignore is important because a member might already have the attendance added

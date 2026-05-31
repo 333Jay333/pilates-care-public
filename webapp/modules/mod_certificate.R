@@ -93,7 +93,7 @@ mod_certificate_server <- function(id, con, global_refresh) {
 
           member <- input$members[i]
           member_data <- get_member_user_id(con, member)
-          abo_data <- get_abo_user_id(con, member)
+          abo_data <- get_abo_user_id(con, member) # THIS WILL NEED TO BE CHANGED NOW THAT A USER CAN HAVE MULTIPLE ABOS
           course_membership <- get_course_membership_user_id(con, member)$course_id
           abo_price <- get_abo_price(con, course_membership, abo_data$abo_type)
 

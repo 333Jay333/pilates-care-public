@@ -12,9 +12,15 @@ get_course_members_course_id <- function(con, course_id) {
   dbGetQuery(
     con, 
     "
-    SELECT cm.user_id FROM course_memberships cm
-    JOIN members m ON cm.user_id = m.user_id
+    SELECT 
+      cm.user_id 
+    FROM course_memberships cm
+    JOIN members m 
+      ON cm.user_id = m.user_id
+    JOIN abos ab
+      ON cm.user_id = ab.user_id
     WHERE cm.course_id = ?
+      AND ab.abo_status = 'active'
     ",
     params = list(
       course_id
