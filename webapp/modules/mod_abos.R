@@ -134,6 +134,7 @@ mod_abos_server <- function(id, con, global_refresh) {
     
     # reactive value to store if a abo 10 or abo month is being archived
     rv_archive_type <- reactiveVal()
+    selected_member <- reactiveVal(NULL)
     certificate_list <- reactiveVal(integer())
     
     ## Modals
@@ -235,11 +236,14 @@ mod_abos_server <- function(id, con, global_refresh) {
       data <- get_selected_row_data(rv_archive_type())
       
       # safety check that row is selected
-      if (length(data) > 0) {
+      if (nrow(data) > 0) {
         # in case it is a 10 abo, set the end date to today
         if (rv_archive_type() == "10") {
           update_abo_end(con, data$abo_id, today())
         }
+        
+        # save selected member
+        selected_member(data)
         
         # archive the abo
         archive_abo(con, data$abo_id)
@@ -259,11 +263,10 @@ mod_abos_server <- function(id, con, global_refresh) {
       removeModal()
       
       # get selected row data
-      print(rv_archive_type())
       data <- get_selected_row_data(rv_archive_type())
       
       # safety check
-      if (length(data) > 0) {
+      if (nrow(data) > 0) {
         # show the modal for adding the abo
         show_add_abo_modal()
       } else {
@@ -276,10 +279,11 @@ mod_abos_server <- function(id, con, global_refresh) {
     observeEvent(input$confirm_new_abo, {
       req(input$abo, input$abo_start)
       
-      print("yes")
-      
       # get selected row data
       data <- get_selected_row_data(rv_archive_type())
+      
+      # save selected member
+      selected_member(data)
       
       # add the new abo
       add_abo(con, input$abo, data$user_id, input$abo_start)
@@ -291,8 +295,6 @@ mod_abos_server <- function(id, con, global_refresh) {
       if (rv_archive_type() == "10") {
         update_abo_end(con, data$abo_id, today())
       }
-      
-      print(data$abo_id)
       
       # archive the old abo
       archive_abo(con, data$abo_id)
@@ -306,12 +308,8 @@ mod_abos_server <- function(id, con, global_refresh) {
     # ask the user about certificates
     observeEvent(input$certificate_yes, {
       # append current user_id to the list for making certificates at the end
-      print(rv_archive_type())
-      
-      print(get_selected_row_data(rv_archive_type())$user_id)
-      
       certificate_list(
-        c(certificate_list(), get_selected_row_data(rv_archive_type())$user_id)
+        c(certificate_list(), selected_member()$user_id)
       )
       
       print(certificate_list())
