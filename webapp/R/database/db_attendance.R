@@ -48,7 +48,10 @@ get_attendance_course_id <- function(con, course_id) {
       ON a.user_id = m.user_id
     JOIN course_dates cd 
       ON a.course_date_id = cd.course_date_id
+    JOIN abos ab
+      ON a.abo_id = ab.abo_id
     WHERE cd.course_id = ?
+      AND ab.abo_status = 'active'
     ",
     params = list(
       course_id

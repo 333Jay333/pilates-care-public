@@ -274,11 +274,27 @@ mod_attendance_server <- function(id, con, global_refresh) {
       
       # insert attendance
       count <- 0
-      for (member in input$members) {
+      log_skipped <- data.frame(
+        user_id = integer(),
+        reason = character(),
+        stringsAsFactors = FALSE
+      )
+      for (member in as.integer(input$members)) {
         active_abo <- get_active_abo_user_id(con, member)
         
         # safety check if attendance can be added for this abo
         # STILL NEEDS TO BE IMPLEMENTED
+        # skip this member if no active abo
+        # if (nrow(active_abo) == 0) {
+        #   log_skipped <- rbind(
+        #     log_skipped,
+        #     data.frame(
+        #       user_id = member,
+        #       reason = "no active abo"
+        #     )
+        #   )
+        #   next
+        # }
         
         insert_attendance(con, course_date_id = course_date_id, user_id = member, abo_id = active_abo$abo_id)
         count <- count + 1
@@ -291,6 +307,17 @@ mod_attendance_server <- function(id, con, global_refresh) {
       } else {
         showNotification(paste("Anwesenheit für", count, "Personen hinzugefügt"), type = "message")
       }
+      
+      # if (nrow(log_skipped) > 0) {
+      #   showNotification(
+      #     paste0(
+      #       "Skipped: ",
+      #       paste(log_skipped$user_id, collapse = ", ")
+      #     ),
+      #     type = "warning",
+      #     duration = 8
+      #   )
+      # }
     })
     
     # DELETE

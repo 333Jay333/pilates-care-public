@@ -79,6 +79,7 @@ get_active_abo_user_id <- function(con, user_id) {
 }
 
 # query to get how many courses were attended already for members with 10er abo
+# only selects courses if the match the abo_id of the currently active abo
 get_attended_courses_abo_10 <- function(con) {
   dbGetQuery(
     con,
@@ -97,6 +98,7 @@ get_attended_courses_abo_10 <- function(con) {
       ON m.user_id = a.user_id
     WHERE ab.abo_type = 10
       AND ab.abo_status = 'active'
+      AND a.abo_id = ab.abo_id
     GROUP BY m.user_id, m.vorname, m.name
     "
   )
