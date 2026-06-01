@@ -32,6 +32,16 @@ mod_abos_ui <- function(id) {
     # Neues Abo erstellen
     # Check, dass es nicht schon ein aktives Abo gibt
     
+    h3("Neues Abo erstellen"),
+    
+    selectInput(ns("members"), "Person wählen", choices = NULL, multiple = FALSE),
+    
+    selectInput(ns("abo"), "Abo wählen", choices = choices_abos),
+    
+    dateInput(ns("abo_start"), "Abo-Beginn", format = "dd.mm.yyyy"),
+    
+    actionButton(ns("member_abo_add"), "Neues Abo erstellen", disabled = TRUE),
+    
     h3("Abo-Preise"),
     
     hr(),
@@ -53,7 +63,7 @@ mod_abos_ui <- function(id) {
 mod_abos_server <- function(id, con, global_refresh) {
   moduleServer(id, function(input, output, session) {
     
-    ns <- session$ns  # THIS is your ns function in server -> needed for modals
+    ns <- session$ns  # ns function in server -> needed for modals
     
     # Abgelaufene Abos
     
@@ -134,8 +144,6 @@ mod_abos_server <- function(id, con, global_refresh) {
     
     
     # DELETE
-    
-    # SOMEWHERE, I STILL NEED TO IMPLEMENT THE UPDATE END DATE FOR THE 10 ABO
     
     # reactive value to store if a abo 10 or abo month is being archived
     rv_archive_type <- reactiveVal()
@@ -348,8 +356,61 @@ mod_abos_server <- function(id, con, global_refresh) {
       global_refresh$abos <- global_refresh$abos + 1
     })
     
+    # ADD NEW ABO
     
-    # Abo price
+    # get members and update if new members get added
+    observeEvent(global_refresh$members, {
+      members <- get_members(con)
+      choices_members <- setNames(
+        members$user_id,  # values (what server receives)
+        paste(members$vorname, members$name)  # labels (what user sees)
+      )
+      
+      updateSelectInput(
+        session,
+        "members",
+        choices = choices_members
+      )
+    })
+    
+    # check if inputs exist to enable button
+    observe({
+      if (length(input$members) > 0) {
+        updateActionButton(session, "member_abo_add", disabled = FALSE)
+      } else {
+        updateActionButton(session, "member_abo_add", disabled = TRUE)
+      }
+    })
+    
+    # if user presses add button, insert new abo
+    observeEvent(input$member_abo_add, {
+      req(input$members, input$abo, input$abo_start)
+      
+      active_abo <- get_active_abo_user_id(con, input$members)
+      
+      # check that user doesn't already have an active abo
+      if (nrow(active_abo) > 0) {
+        
+        showNotification(
+          "Abbruch: Diese Person hat bereits ein aktives Abo.",
+          type = "warning"
+        )
+        
+        return()
+      }
+      
+      # add abo
+      insert_abo(con, input$members, input$abo, input$abo_start)
+      
+      showNotification(
+        "Abo hinzugefügt",
+        type = "message"
+      )
+      
+      
+    })
+    
+    # ABO PRICE
     
     # update choices for input$course -> gets refreshed if new courses get added
     observeEvent(global_refresh$courses, {
