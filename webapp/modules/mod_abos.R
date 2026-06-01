@@ -27,6 +27,14 @@ mod_abos_ui <- function(id) {
     
     hr(),
     
+    h4("Abo archivieren"),
+    
+    dataTableOutput(ns("abo_list")),
+    
+    actionButton(ns("archive_abo_list"), "Abo archivieren", disabled = FALSE),
+    
+    hr(),
+    
     # Archive Abo einfach so -> Liste von aktiven Abos
     
     # Neues Abo erstellen
@@ -64,6 +72,8 @@ mod_abos_server <- function(id, con, global_refresh) {
   moduleServer(id, function(input, output, session) {
     
     ns <- session$ns  # ns function in server -> needed for modals
+    
+    # ABOS ARCHIVIEREN
     
     # Abgelaufene Abos
     
@@ -307,8 +317,6 @@ mod_abos_server <- function(id, con, global_refresh) {
       add_abo(con, input$abo, data$user_id, input$abo_start)
       global_refresh$abos <- global_refresh$abos + 1
       
-      print("new abo added")
-      
       # in case the old abo is a 10 abo, set the end date to today
       if (rv_archive_type() == "10") {
         update_abo_end(con, data$abo_id, today())
@@ -316,8 +324,6 @@ mod_abos_server <- function(id, con, global_refresh) {
       
       # archive the old abo
       archive_abo(con, data$abo_id)
-      
-      print("old abo archived")
       
       # ask the user if the current member should be added to certificate list
       show_certificate_modal()
@@ -339,13 +345,13 @@ mod_abos_server <- function(id, con, global_refresh) {
         )
       )
       
-      print(certificate_list())
-      
       # close the previous modal
       removeModal()
       
       # now update the global refresh such that the list of expired abos gets updated
       global_refresh$abos <- global_refresh$abos + 1
+      
+      print(certificate_list())
     })
     
     observeEvent(input$certificate_no, {
@@ -355,6 +361,73 @@ mod_abos_server <- function(id, con, global_refresh) {
       # now update the global refresh such that the list of expired abos gets updated
       global_refresh$abos <- global_refresh$abos + 1
     })
+    
+    # archive member from list
+    
+    # get data for the table
+    data_abo_list <- reactive({
+      
+      global_refresh$abos   # important: without this, it doesn't get refreshed when abos change
+      
+      data <- get_active_abos(con)
+      
+      # return
+      data
+    })
+    
+    # render the table
+    output$abo_list <- renderDT({
+      
+      # make a nice version
+      abo_list_display <- data_abo_list() |> 
+        select(vorname, name, abo_type) |> 
+        mutate(
+          abo_type = abo_type |> 
+            recode_values(
+              10 ~ "10er Abo",
+              3 ~ "3-Monats Abo",
+              6 ~ "6-Monats Abo"
+            )
+          ) |> 
+        rename(
+          "Vorname" = vorname,
+          "Name" = name,
+          "Abo Typ" = abo_type
+        )
+      
+      # render
+      datatable(
+        abo_list_display,
+        selection = "single",
+        options = list(pageLength = 10)
+      )
+    })
+    
+    # archive member from list
+    observeEvent(input$archive_abo_list, {
+      # which row is selected
+      
+      selected <- input$abo_list_rows_selected
+      
+      # Safety check
+      if (length(selected) == 0) {
+        showNotification("Bitte Teilnehmer*in auswählen", type = "warning")
+        return()
+      }
+      
+      # Get the selected row data
+      abo_archive <- data_abo_list()[selected, ]
+      
+      # save selected member for certificate modal
+      selected_member(abo_archive)
+      
+      # archive abo
+      archive_abo(con, abo_archive$abo_id)
+      
+      # show certificate modal
+      show_certificate_modal()
+    })
+    
     
     # ADD NEW ABO
     

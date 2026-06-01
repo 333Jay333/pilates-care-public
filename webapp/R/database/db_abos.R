@@ -64,6 +64,26 @@ get_abo_user_id <- function(con, user_id) {
   )
 }
 
+get_active_abos <- function(con) {
+  dbGetQuery(
+    con,
+    "
+    SELECT 
+      ab.abo_id,
+      ab.user_id,
+      ab.abo_type,
+      ab.abo_start,
+      ab.abo_end,
+      m.vorname,
+      m.name
+    FROM abos ab
+    JOIN members m
+      ON ab.user_id = m.user_id
+    WHERE ab.abo_status = 'active'
+    "
+  )
+}
+
 get_active_abo_user_id <- function(con, user_id) {
   dbGetQuery(
     con,
