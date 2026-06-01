@@ -80,8 +80,18 @@ init_db <- function(db) {
       abo_start DATE NOT NULL,
       abo_end DATE DEFAULT NULL,
       abo_status TEXT DEFAULT 'active',
+      CHECK (abo_status IN ('active', 'archived')),
       FOREIGN KEY (user_id) REFERENCES members(user_id) ON DELETE CASCADE
     )"
+  )
+  # make sure that only one abo per user_id can be active
+  dbExecute(
+    db,
+    "
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_one_active_abo_per_user
+    ON abos(user_id)
+    WHERE abo_status = 'active'
+    "
   )
   
   # create abo_prices table
