@@ -3,122 +3,74 @@ choices_abos <- setNames(
   c("10er-Abo", "3-Monats-Abo", "6-Monats-Abo") # labels (what user sees)
 )
 
-tags$style(HTML("
-  html, body {
-    height: auto !important;
-    overflow-y: auto !important;
-  }
-
-  .tab-content {
-    overflow: visible !important;
-  }
-"))
-
 mod_abos_ui <- function(id) {
   ns <- NS(id)
   
-  navset_card_tab(
-    nav_panel(
-      title = "Abos archivieren",
-      
-      
-      layout_columns(
-        col_widths = c(6, 6),
-      # layout_column_wrap(
-      #   width = 1/2,
-        
-        card(
-          card_header("Abgelaufene 10er-Abos"),
-          card_body(
-            # div(style = "font-size: 0.7rem;",
-              dataTableOutput(ns("abo_10_expired"))
-            # )
-          ),
-          card_footer(actionButton(ns("archive_abo_10"), "Abo archivieren"))
-        ),
-        
-        card(
-          card_header("Abgelaufene Monats-Abos"),
-          card_body(DT::dataTableOutput(ns("abo_month_expired"))),
-          card_footer(actionButton(ns("archive_abo_month"), "Abo archivieren"))
-        ),
-        
-        card(
-          card_header("Abo Liste"),
-          card_body(DT::dataTableOutput(ns("abo_list"))),
-          card_footer(actionButton(ns("archive_abo_list"), "Abo archivieren"))
-        ),
-        
-        card(
-          card_header("Zertifikate"),
-          card_body(
-            selectInput(ns("therapist"), "Therapeut*in", choices = NULL),
-            tableOutput(ns("certificates_to_generate"))
-          ),
-          card_footer(actionButton(ns("make_certificates"), "Zertifikate erstellen"))
-        )
-      )
-    ),
-        
-        # value_box(
-        #   h4("Abgelaufene Monats-Abos"),
-        #   
-        #   dataTableOutput(ns("abo_month_expired")),
-        #   
-        #   actionButton(ns("archive_abo_month"), "Abo archivieren", disabled = FALSE)
-        # ),
-        # 
-        # value_box(
-        #   h4("Abo archivieren"),
-        #   
-        #   dataTableOutput(ns("abo_list")),
-        #   
-        #   actionButton(ns("archive_abo_list"), "Abo archivieren", disabled = FALSE)
-        # ),
-        # 
-        # value_box(
-        #   h4("Zertifikate für archivierte Abos"),
-        #   
-        #   selectInput(ns("therapist"), "Therapeut*in", choices = NULL, multiple = FALSE),
-        #   
-        #   h5("Für folgende Personen wird ein Zertifikat generiert:"),
-        #   
-        #   tableOutput(ns("certificates_to_generate")),
-        #   
-        #   actionButton(ns("make_certificates"), "Zertifikate erstellen", disabled = TRUE)
-        # )
-
-    nav_panel(
-      title = "Neues Abo erstellen",
-      
-      tagList(
-        h4("Für welche Person soll ein neues Abo erstellt werden?"),
-        
-        selectInput(ns("members"), "Person wählen", choices = NULL, multiple = FALSE),
-        
-        selectInput(ns("abo"), "Abo wählen", choices = choices_abos),
-        
-        dateInput(ns("abo_start"), "Abo-Beginn", format = "dd.mm.yyyy"),
-        
-        actionButton(ns("member_abo_add"), "Neues Abo erstellen", disabled = TRUE)
-      )
-    ),
+  tagList(
+    h3("Abos verwalten"),
     
-    nav_panel(
-      title = "Abo-Preise",
-      
-      tagList(
-        h4("Abo-Preise anpassen"),
-        
-        selectInput(ns("course"), "Kurs wählen", choices = NULL),
-        
-        selectInput(ns("abo"), "Abo wählen", choices = choices_abos),
-        
-        numericInput(ns("new_price"), "Neuer Abo-Preis", value = 300, min = 0, step = 10),
-        
-        actionButton(ns("update_price"), "Abo-Preis anpassen")
-      )
-    )
+    hr(),
+    
+    h4("Abgelaufene 10er-Abos"),
+    
+    dataTableOutput(ns("abo_10_expired")),
+    
+    actionButton(ns("archive_abo_10"), "Abo archivieren", disabled = FALSE),
+    
+    hr(),
+    
+    h4("Abgelaufene Monats-Abos"),
+    
+    dataTableOutput(ns("abo_month_expired")),
+    
+    actionButton(ns("archive_abo_month"), "Abo archivieren", disabled = FALSE),
+    
+    hr(),
+    
+    h4("Abo archivieren"),
+    
+    dataTableOutput(ns("abo_list")),
+    
+    actionButton(ns("archive_abo_list"), "Abo archivieren", disabled = FALSE),
+    
+    hr(),
+    
+    h4("Zertifikate für archivierte Abos"),
+    
+    selectInput(ns("therapist"), "Therapeut*in", choices = NULL, multiple = FALSE),
+    
+    h5("Für folgende Personen wird ein Zertifikat generiert:"),
+    
+    tableOutput(ns("certificates_to_generate")),
+    
+    actionButton(ns("make_certificates"), "Zertifikate erstellen", disabled = TRUE),
+    
+    hr(),
+    
+    h3("Neues Abo erstellen"),
+    
+    selectInput(ns("members"), "Person wählen", choices = NULL, multiple = FALSE),
+    
+    selectInput(ns("abo"), "Abo wählen", choices = choices_abos),
+    
+    dateInput(ns("abo_start"), "Abo-Beginn", format = "dd.mm.yyyy"),
+    
+    actionButton(ns("member_abo_add"), "Neues Abo erstellen", disabled = TRUE),
+    
+    h3("Abo-Preise"),
+    
+    hr(),
+    
+    h4("Abo-Preise anpassen"),
+    
+    selectInput(ns("course"), "Kurs wählen", choices = NULL),
+    
+    selectInput(ns("abo"), "Abo wählen", choices = choices_abos),
+    
+    numericInput(ns("new_price"), "Neuer Abo-Preis", value = 300, min = 0, step = 10),
+    
+    actionButton(ns("update_price"), "Abo-Preis anpassen")
+    
   )
 }
 
@@ -164,11 +116,7 @@ mod_abos_server <- function(id, con, global_refresh) {
       datatable(
         abo_10_expired_display,
         selection = "single",
-        options = list(
-          scrollX = TRUE,
-          autoWidth = TRUE,
-          pageLength = 5
-        )
+        options = list(pageLength = 10)
       )
       
     })
@@ -452,7 +400,7 @@ mod_abos_server <- function(id, con, global_refresh) {
               3 ~ "3-Monats Abo",
               6 ~ "6-Monats Abo"
             )
-          ) |> 
+        ) |> 
         rename(
           "Vorname" = vorname,
           "Name" = name,
