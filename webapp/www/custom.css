@@ -1,0 +1,20 @@
+.pc-card {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.pc-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #888;
+  margin-bottom: 12px;
+}
+
+/* Tighten default Shiny input spacing */
+.form-group { margin-bottom: 10px; }
+.form-group label { font-size: 13px; }

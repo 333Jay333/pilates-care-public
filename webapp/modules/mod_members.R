@@ -1,47 +1,83 @@
-mod_members_ui <- function(id, con) {
+choices_abos <- setNames(
+  c(10,3,6), # values (what server receives)
+  c("10er-Abo", "3-Monats-Abo", "6-Monats-Abo")
+)
+
+mod_members_ui <- function(id) {
   ns <- NS(id)
-  
-  courses <- get_courses(con)
-  choices_courses <- setNames(
-    courses$course_id, # values (what server receives)
-    courses$kursname # labels (what user sees)
-  )
-  
-  choices_abos <- setNames(
-    c(10,3,6), # values (what server receives)
-    c("10er-Abo", "3-Monats-Abo", "6-Monats-Abo")
-  )
-  
+    
   tagList(
+    tags$head(tags$link(rel = "stylesheet", href = "custom.css")),
+    
     h3("Teilnehmende"),
     
-    hr(),
-    
-    h4("Teilnehmer*in hinzufügen"),
-    
-    textInput(ns("name"), "Name"),
-    textInput(ns("vorname"), "Vorname"),
-    selectInput(ns("course"), "Zu Kurs hinzufügen", choices = choices_courses),
-    selectInput(ns("abo"), "Abo wählen", choices = choices_abos),
-    dateInput(ns("abo_start"), "Abo-Beginn", format = "dd.mm.yyyy"),
-    textInput(ns("kk"), "Name der Krankenkasse (optional)"),
-    textInput(ns("zv"), "Zusatzversicherung (optional)"),
-    textInput(ns("vnr"), "Versicherungs-Nummer (optional)"),
-    textInput(ns("adresse"), "Adresse (optional)"),
-    textInput(ns("plz"), "PLZ/Ort (optional)"),
-    textInput(ns("mail"), "E-Mail (optional)"),
-    
-    actionButton(ns("add"), "Teilnehmer*in hinzufügen", disabled = TRUE),
-    
-    hr(),
-    
-    h4("Teilnehmer*in entfernen"),
-    
-    DTOutput(ns("members_table_edit")),
-    
-    actionButton(ns("remove"), "Teilnehmer*in entfernen", disabled = FALSE),
+    fluidRow(
+      # Left column: add form
+      column(4,
+             div(class = "pc-card",
+                 tags$p(class = "pc-section-label", "Teilnehmer*in hinzufügen"),
+                 fluidRow(
+                   column(6, textInput(ns("vorname"), "Vorname")),
+                   column(6, textInput(ns("name"), "Name"))
+                 ),
+                 selectInput(ns("course"), "Kurs", choices = NULL),
+                 fluidRow(
+                   column(6, selectInput(ns("abo"), "Abo", choices = choices_abos)),
+                   column(6, dateInput(ns("abo_start"), "Abo-Beginn", format = "dd.mm.yyyy"))
+                 ),
+                 tags$hr(),
+                 tags$p(class = "pc-section-label", "Versicherung & Kontakt (optional)"),
+                 fluidRow(
+                   column(6, textInput(ns("kk"), "Krankenkasse")),
+                   column(6, textInput(ns("zv"), "Zusatzversicherung")),
+                   column(6, textInput(ns("vnr"), "Versicherungs-Nummer")),
+                   column(6, textInput(ns("adresse"), "Adresse")),
+                   column(6, textInput(ns("plz"), "PLZ/Ort")),
+                   column(6, textInput(ns("mail"), "E-Mail"))
+                 ),
+                 actionButton(ns("add"), "Hinzufügen", class = "btn-primary btn-sm", disabled = TRUE)
+             )
+      ),
+      
+      # Right column: table + remove
+      column(8,
+             div(class = "pc-card",
+                 tags$p(class = "pc-section-label", "Teilnehmende verwalten"),
+                 DTOutput(ns("members_table_edit")),
+                 actionButton(ns("remove"), "Entfernen", class = "btn-danger btn-sm")
+             )
+      )
+    )
   )
 }
+  
+#   tagList(
+#     h3("Teilnehmende"),
+#     
+#     hr(),
+#     
+#     h4("Teilnehmer*in hinzufügen"),
+#     
+#     textInput(ns("name"), "Name"),
+#     textInput(ns("vorname"), "Vorname"),
+#     selectInput(ns("course"), "Zu Kurs hinzufügen", choices = choices_courses),
+#     selectInput(ns("abo"), "Abo wählen", choices = choices_abos),
+#     dateInput(ns("abo_start"), "Abo-Beginn", format = "dd.mm.yyyy"),
+#     textInput(ns("kk"), "Name der Krankenkasse (optional)"),
+#     textInput(ns("zv"), "Zusatzversicherung (optional)"),
+#     
+#     
+#     actionButton(ns("add"), "Teilnehmer*in hinzufügen", disabled = TRUE),
+#     
+#     hr(),
+#     
+#     h4("Teilnehmer*in entfernen"),
+#     
+#     DTOutput(ns("members_table_edit")),
+#     
+#     actionButton(ns("remove"), "Teilnehmer*in entfernen", disabled = FALSE),
+#   )
+# }
 
 
 mod_members_server <- function(id, con, global_refresh) {
