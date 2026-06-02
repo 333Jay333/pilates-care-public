@@ -1,32 +1,50 @@
-mod_abo_dashboard_ui <- function(id, con) {
+choices_still_left <- setNames(
+  c(3:1), # what server receives
+  c("3 oder weniger", "2 oder weniger", "1 oder weniger") # what user sees
+)
+
+choices_weeks_still_left <- setNames(
+  c(6:1), # what server receives
+  c(paste(rep(6:1), "oder weniger")) # what user sees
+)
+
+mod_abo_dashboard_ui <- function(id) {
   ns <- NS(id)
   
-  choices_still_left <- setNames(
-    c(3:1), # what server receives
-    c("3 oder weniger", "2 oder weniger", "1 oder weniger") # what user sees
-  )
-  
-  choices_weeks_still_left <- setNames(
-    c(6:1), # what server receives
-    c(paste(rep(6:1), "oder weniger")) # what user sees
-  )
-  
   tagList(
-    h3("10er Abos"),
+    tags$head(tags$link(rel = "stylesheet", href = "custom.css")),
     
-    hr(),
-    
-    selectInput(ns("still_left"), "Wie viele Termine noch übrig?", choices = choices_still_left, selected = 3),
-    
-    dataTableOutput(ns("abo_10_soon_done")),
-    
-    hr(),
-    
-    h3("3-Monats-Abo und 6-Monats-Abo"),
-    
-    selectInput(ns("weeks_still_left"), "Wie viele Wochen noch übrig?", choices = choices_weeks_still_left, selected = 6),
-    
-    dataTableOutput(ns("abo_month_soon_done"))
+    fluidRow(
+      # Left column
+      column(
+        6,
+        div(class = "pc-card",
+        
+          tags$p(
+            class = "pc-section-label", 
+            tags$i(class = "ti ti-clipboard-text"), "10er Abos"
+          ),
+          selectInput(ns("still_left"), "Wie viele Termine noch übrig?", choices = choices_still_left, selected = 3),
+          dataTableOutput(ns("abo_10_soon_done")),
+        )
+      ),
+      
+      # Right column
+      column(
+        6,
+        div(
+          class = "pc-card",
+          
+          tags$p(
+            class = "pc-section-label",
+            tags$i(class = "ti ti-clipboard-text"), "3-Monats-Abo und 6-Monats-Abo"
+          ),
+          
+          selectInput(ns("weeks_still_left"), "Wie viele Wochen noch übrig?", choices = choices_weeks_still_left, selected = 6),
+          dataTableOutput(ns("abo_month_soon_done"))
+        )
+      )
+    )
   )
 }
 
