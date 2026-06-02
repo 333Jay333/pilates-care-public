@@ -6,22 +6,13 @@ library(pool)
 library(here)
 library(tidyverse)
 
-source("R/init_db.R") # sets up the tables in my db
-source("R/db_therapists.R")
-source("R/db_members.R")
-source("R/db_courses.R")
-source("R/db_course_memberships.R")
-source("R/db_abos.R")
-source("R/db_abo_prices.R")
-source("R/db_course_dates.R")
-source("R/db_attendance.R")
-source("modules/mod_therapists.R") # module for therapists
-source("modules/mod_members.R")
-source("modules/mod_certificate.R")
-source("modules/mod_courses.R")
-source("modules/mod_attendance.R")
-source("modules/mod_abo_dashboard.R")
-source("modules/mod_abos.R")
+# Source scripts
+list.files("R", recursive = TRUE, full.names = TRUE) |>
+  walk(source)
+
+# Source modules for webapp
+list.files("modules", full.names = TRUE) |>
+  walk(source)
 
 # Set up db folder locally
 if (!dir.exists(here("db"))) {
@@ -37,7 +28,7 @@ db <- dbPool(
 # initialise db
 init_db(db)
 
-# enable foreign keys for the db -> this is needed in SQLite
+# enable foreign keys for the db -> this is needed in SQLite such that DELETE CASCADES work
 dbExecute(db, "PRAGMA foreign_keys = ON")
 
 # ---- Close the connection to the db when the app stops ----

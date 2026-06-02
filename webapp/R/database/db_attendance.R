@@ -1,9 +1,13 @@
-insert_attendance <- function(con, course_date_id, user_id) {
+insert_attendance <- function(con, course_date_id, user_id, abo_id) {
   dbExecute(
     con,
-    "INSERT OR IGNORE INTO attendance (course_date_id, user_id) VALUES (?,?)",
+    "INSERT OR IGNORE INTO attendance 
+      (course_date_id, user_id, abo_id) 
+      VALUES (?,?,?)",
     params = list(
-      course_date_id, user_id
+      course_date_id, 
+      user_id,
+      abo_id
     )
   )
 } # ignore is important because a member might already have the attendance added
@@ -44,7 +48,10 @@ get_attendance_course_id <- function(con, course_id) {
       ON a.user_id = m.user_id
     JOIN course_dates cd 
       ON a.course_date_id = cd.course_date_id
+    JOIN abos ab
+      ON a.abo_id = ab.abo_id
     WHERE cd.course_id = ?
+      AND ab.abo_status = 'active'
     ",
     params = list(
       course_id
