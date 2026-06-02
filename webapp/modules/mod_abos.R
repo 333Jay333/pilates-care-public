@@ -35,10 +35,17 @@ mod_abos_ui <- function(id) {
     
     hr(),
     
-    # Archive Abo einfach so -> Liste von aktiven Abos
+    h4("Zertifikate für archivierte Abos"),
     
-    # Neues Abo erstellen
-    # Check, dass es nicht schon ein aktives Abo gibt
+    selectInput(ns("therapist"), "Therapeut*in", choices = NULL, multiple = FALSE),
+    
+    h5("Für folgende Personen wird ein Zertifikat generiert:"),
+    
+    tableOutput(ns("certificates_to_generate")),
+    
+    actionButton(ns("make_certificates"), "Zertifikate erstellen", disabled = TRUE),
+    
+    hr(),
     
     h3("Neues Abo erstellen"),
     
@@ -161,7 +168,10 @@ mod_abos_server <- function(id, con, global_refresh) {
     certificate_list <- reactiveVal(
       data.frame(
         user_id = integer(),
-        abo_id = integer()
+        abo_id = integer(),
+        vorname = character(),
+        name = character()
+        
       )
     )
     
@@ -266,7 +276,7 @@ mod_abos_server <- function(id, con, global_refresh) {
       # safety check that row is selected
       if (nrow(data) > 0) {
         # in case it is a 10 abo, set the end date to today
-        if (rv_archive_type() == "10") {
+        if (rv_archive_type() == 10) {
           update_abo_end(con, data$abo_id, today())
         }
         
@@ -318,7 +328,7 @@ mod_abos_server <- function(id, con, global_refresh) {
       global_refresh$abos <- global_refresh$abos + 1
       
       # in case the old abo is a 10 abo, set the end date to today
-      if (rv_archive_type() == "10") {
+      if (rv_archive_type() == 10) {
         update_abo_end(con, data$abo_id, today())
       }
       
@@ -340,7 +350,9 @@ mod_abos_server <- function(id, con, global_refresh) {
           certificate_list(),
           data.frame(
             user_id = data$user_id,
-            abo_id = data$abo_id
+            abo_id = data$abo_id,
+            vorname = data$vorname,
+            name = data$name
           )
         )
       )
@@ -405,8 +417,8 @@ mod_abos_server <- function(id, con, global_refresh) {
     
     # archive member from list
     observeEvent(input$archive_abo_list, {
-      # which row is selected
       
+      # which row is selected
       selected <- input$abo_list_rows_selected
       
       # Safety check
@@ -421,6 +433,11 @@ mod_abos_server <- function(id, con, global_refresh) {
       # save selected member for certificate modal
       selected_member(abo_archive)
       
+      # in case it is a 10 abo, set the end date to today
+      if (abo_archive$abo_type == 10) {
+        update_abo_end(con, abo_archive$abo_id, today())
+      }
+      
       # archive abo
       archive_abo(con, abo_archive$abo_id)
       
@@ -428,6 +445,64 @@ mod_abos_server <- function(id, con, global_refresh) {
       show_certificate_modal()
     })
     
+    # make certificates
+    
+    # update choices in case new therapists get added
+    observeEvent(global_refresh$therapists, {
+      therapists <- get_therapists(con)
+      choices_therapists <- setNames(
+        therapists$user_id, # values (what server receives)
+        therapists$vorname # labels (what user sees)
+      )
+      
+      updateSelectInput(
+        session,
+        "therapist",
+        choices = choices_therapists
+      )
+    })
+    
+    # get data for certificate table
+    data_certificates <- reactive({
+      
+      members <- certificate_list() |> 
+        select(vorname, name) |> 
+        rename(
+          "Vorname" = vorname,
+          "Name" = name
+        )
+      
+      # return
+      members
+    })
+    
+    # render certificate table
+    output$certificates_to_generate <- renderTable(
+      data_certificates()
+    )
+    
+    # enable button
+    observe({
+      if (nrow(certificate_list()) > 0) {
+        updateActionButton(session, "make_certificates", disabled = FALSE)
+      } else {
+        updateActionButton(session, "make_certificates", disabled = TRUE)
+      }
+    })
+    
+    # generate the certificates
+    observeEvent(input$make_certificates, {
+      req(input$therapist)
+      
+      # ---- disable button immediately ---- -> to prevent double-clicking
+      shinyjs::disable("make_certificates")
+      
+      # ensure re-enable of the button no matter what happens
+      on.exit(shinyjs::enable("make_certificates"), add = TRUE)
+      
+      # make certificates
+      make_certificates(con, therapist_user_id = input$therapist, members_user_ids = certificate_list()$user_id)
+    })
     
     # ADD NEW ABO
     
