@@ -1,6 +1,14 @@
 navbarPage(
   title = "PilatesCare",
   
+  # enable icons
+  tags$head(
+    tags$link(
+      rel = "stylesheet",
+      href = "https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"
+    )
+  ),
+  
   tabPanel(
     title = "Anwesenheit",
     

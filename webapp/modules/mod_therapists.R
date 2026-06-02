@@ -2,36 +2,74 @@ mod_therapists_ui <- function(id) {
   ns <- NS(id)
   
   tagList(
-    h3("Therapeut*innen"),
-    
-    hr(),
-    
-    h4("Therapeut*in hinzufügen"),
-    
-    textInput(ns("vorname"), "Vorname"),
-    textInput(ns("name"), "Name"),
-    textInput(ns("praxis"), "Praxis"),
-    textInput(ns("adresse"), "Adresse"),
-    textInput(ns("plz"), "PLZ/Ort"),
-    textInput(ns("tel"), "Tel."),
-    textInput(ns("mail"), "E-Mail"),
-    textInput(ns("zsr"), "ZSR-Nummer"),
-    textInput(ns("knr"), "K-Nummer"),
-    textInput(ns("emfit"), "EMfit-Nummer"),
-    textInput(ns("pilat_nr"), "PilatesCare Mitglieder-Nr."),
-    
-    actionButton(ns("add"), "Therapeut*in hinzufügen", disabled = TRUE),
-    
-    hr(),
-    
-    h4("Therapeut*in entfernen"),
-    
-    DTOutput(ns("therapists_table_edit")),
-    
-    actionButton(ns("remove"), "Therapeut*in entfernen", disabled = FALSE)
+    fluidRow(
+      # Left: add form
+      column(4,
+             div(class = "pc-card",
+                 tags$p(class = "pc-section-label", 
+                        tags$i(class = "ti ti-user-plus"), " Therapeut*in hinzufügen"),
+                 
+                 fluidRow(
+                   column(6, textInput(ns("vorname"), "Vorname")),
+                   column(6, textInput(ns("name"), "Name"))
+                 ),
+                 textInput(ns("praxis"), "Praxis"),
+                 textInput(ns("adresse"), "Adresse"),
+                 fluidRow(
+                   column(6, textInput(ns("plz"), "PLZ / Ort")),
+                   column(6, textInput(ns("tel"), "Tel."))
+                 ),
+                 textInput(ns("mail"), "E-Mail"),
+                 
+                 tags$hr(),
+                 tags$p(class = "pc-section-label",
+                        tags$i(class = "ti ti-id-badge"), " Nummern"),
+                 
+                 fluidRow(
+                   column(6, textInput(ns("zsr"),      "ZSR-Nummer")),
+                   column(6, textInput(ns("knr"),      "K-Nummer"))
+                 ),
+                 fluidRow(
+                   column(6, textInput(ns("emfit"),    "EMfit-Nummer")),
+                   column(6, textInput(ns("pilat_nr"), "PilatesCare Mitglieder-Nr."))
+                 ),
+                 
+                 actionButton(ns("add"), 
+                              tagList(tags$i(class = "ti ti-user-plus"), " Hinzufügen"),
+                              class = "btn-primary btn-sm", disabled = TRUE)
+             )
+      ),
+      
+      # Right: table + remove
+      column(
+        8,
+        div(
+          class = "pc-card",
+          
+          tags$p(
+            class = "pc-section-label",
+            tags$i(class = "ti ti-users"),
+            " Therapeut*innen verwalten"
+          ),
+          
+          DTOutput(ns("therapists_table_edit")),
+          
+          div(
+            style = "display:flex; justify-content:flex-end; margin-top:10px;",
+            actionButton(
+              ns("remove"),
+              tagList(
+                tags$i(class = "ti ti-trash"),
+                " Entfernen"
+              ),
+              class = "btn-danger btn-sm"
+            )
+          )
+        )
+      )
+    )
   )
 }
-
 
 mod_therapists_server <- function(id, con, global_refresh) {
   moduleServer(id, function(input, output, session) {
