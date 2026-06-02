@@ -23,14 +23,14 @@ init_db <- function(db) {
     db,
     "CREATE TABLE IF NOT EXISTS members (
       user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-      kk TEXT NOT NULL,
-      zv TEXT NOT NULL,
-      vnr TEXT NOT NULL,
+      kk TEXT DEFAULT ' ',
+      zv TEXT DEFAULT ' ',
+      vnr TEXT DEFAULT ' ',
       vorname TEXT NOT NULL,
       name TEXT NOT NULL,
-      adresse TEXT NOT NULL,
-      plz TEXT NOT NULL,
-      mail TEXT NOT NULL,
+      adresse TEXT DEFAULT ' ',
+      plz TEXT DEFAULT ' ',
+      mail TEXT DEFAULT ' ',
       status TEXT DEFAULT 'active'
     )"
   )
@@ -74,13 +74,24 @@ init_db <- function(db) {
   dbExecute(
     db,
     "CREATE TABLE IF NOT EXISTS abos (
+      abo_id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL,
-      abo_id INTEGER NOT NULL,
+      abo_type INTEGER NOT NULL,
       abo_start DATE NOT NULL,
-      abo_end DATE DEFAULT ' ',
-      PRIMARY KEY (user_id, abo_id),
+      abo_end DATE DEFAULT NULL,
+      abo_status TEXT DEFAULT 'active',
+      CHECK (abo_status IN ('active', 'archived')),
       FOREIGN KEY (user_id) REFERENCES members(user_id) ON DELETE CASCADE
     )"
+  )
+  # make sure that only one abo per user_id can be active
+  dbExecute(
+    db,
+    "
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_one_active_abo_per_user
+    ON abos(user_id)
+    WHERE abo_status = 'active'
+    "
   )
   
   # create abo_prices table
@@ -88,9 +99,9 @@ init_db <- function(db) {
     db,
     "CREATE TABLE IF NOT EXISTS abo_prices (
       course_id INTEGER NOT NULL,
-      abo_id INTEGER NOT NULL,
+      abo_type INTEGER NOT NULL,
       abo_price INTEGER NOT NULL DEFAULT 300,
-      PRIMARY KEY (course_id, abo_id),
+      PRIMARY KEY (course_id, abo_type),
       FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE
     )"
   )
@@ -98,13 +109,26 @@ init_db <- function(db) {
   # create attendance table
   dbExecute(
     db,
-    "CREATE TABLE IF NOT EXISTS attendance (
+    "
+    CREATE TABLE IF NOT EXISTS attendance (
       course_date_id INTEGER NOT NULL,
       user_id INTEGER NOT NULL,
+      abo_id INTEGER NOT NULL,
       status TEXT DEFAULT 'anwesend',
-      PRIMARY KEY (course_date_id, user_id),
-      FOREIGN KEY (course_date_id) REFERENCES course_dates(course_date_id) ON DELETE CASCADE,
-      FOREIGN KEY (user_id) REFERENCES members(user_id) ON DELETE CASCADE
-    )"
+
+    PRIMARY KEY (course_date_id, user_id),
+
+    FOREIGN KEY (course_date_id)
+      REFERENCES course_dates(course_date_id)
+      ON DELETE CASCADE,
+
+    FOREIGN KEY (user_id)
+      REFERENCES members(user_id)
+      ON DELETE CASCADE,
+
+    FOREIGN KEY (abo_id)
+      REFERENCES abos(abo_id)
+    )
+    "
   )
 }

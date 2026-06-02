@@ -19,17 +19,17 @@ mod_members_ui <- function(id, con) {
     
     h4("Teilnehmer*in hinzufügen"),
     
-    textInput(ns("kk"), "Name der Krankenkasse"),
-    textInput(ns("zv"), "Zusatzversicherung"),
-    textInput(ns("vnr"), "Versicherungs-Nummer"),
     textInput(ns("name"), "Name"),
     textInput(ns("vorname"), "Vorname"),
-    textInput(ns("adresse"), "Adresse"),
-    textInput(ns("plz"), "PLZ/Ort"),
-    textInput(ns("mail"), "E-Mail"),
     selectInput(ns("course"), "Zu Kurs hinzufügen", choices = choices_courses),
     selectInput(ns("abo"), "Abo wählen", choices = choices_abos),
     dateInput(ns("abo_start"), "Abo-Beginn", format = "dd.mm.yyyy"),
+    textInput(ns("kk"), "Name der Krankenkasse (optional)"),
+    textInput(ns("zv"), "Zusatzversicherung (optional)"),
+    textInput(ns("vnr"), "Versicherungs-Nummer (optional)"),
+    textInput(ns("adresse"), "Adresse (optional)"),
+    textInput(ns("plz"), "PLZ/Ort (optional)"),
+    textInput(ns("mail"), "E-Mail (optional)"),
     
     actionButton(ns("add"), "Teilnehmer*in hinzufügen", disabled = TRUE),
     
@@ -64,7 +64,7 @@ mod_members_server <- function(id, con, global_refresh) {
     
     # check if inputs exist to enable button
     observe({
-      if (nzchar(input$kk) && nzchar(input$zv) && nzchar(input$vnr) && nzchar(input$name) && nzchar(input$vorname) && nzchar(input$adresse) && nzchar(input$plz) && nzchar(input$mail) && length(input$abo) > 0 && !is.null(input$abo_start)) {
+      if (nzchar(input$name) && nzchar(input$vorname) && length(input$course) > 0 && length(input$abo) > 0 && !is.null(input$abo_start)) {
         updateActionButton(session, "add", disabled = FALSE)
       } else {
         updateActionButton(session, "add", disabled = TRUE)
@@ -80,22 +80,12 @@ mod_members_server <- function(id, con, global_refresh) {
       global_refresh$members <- global_refresh$members + 1
       
       # 2. add member to course
-      member <- get_member_name_vnr(con, input$name, input$vnr)
-      member_user_id <- member$user_id
+      member <- get_member_vorname_name(con, input$vorname, input$name)
       
-      insert_course_member(con, member_user_id, input$course)
+      insert_course_member(con, member$user_id, input$course)
       
       # 3. add abo for member
-      if (input$abo == 10) {
-        insert_abo(con, member_user_id, input$abo, input$abo_start)
-      } else { # calculate abo end automatically for 3 and 6 month abo
-        if (input$abo == 3) {
-          abo_end <- input$abo_start + 91 
-        } else {
-          abo_end <- input$abo_start + 183
-        }
-        insert_abo_end(con, member_user_id, input$abo, input$abo_start, abo_end)
-      }
+      add_abo(con, input$abo, member$user_id, input$abo_start)
       global_refresh$abos <- global_refresh$abos + 1
     })
     

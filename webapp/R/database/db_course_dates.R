@@ -7,7 +7,7 @@
 insert_course_date <- function(con, course_id, course_date) {
   dbExecute(
     con,
-    "INSERT INTO course_dates (course_id, course_date) VALUES (?,?)",
+    "INSERT OR IGNORE INTO course_dates (course_id, course_date) VALUES (?,?)",
     params = list(
       course_id, 
       course_date # better would be a format here: format(course_date, "%Y-%m-%d"). Now, everything gets stored as integer (days since 01.01.1970)

@@ -116,7 +116,7 @@ mod_courses_server <- function(id, con, global_refresh) {
       global_refresh$courses # don't forget this or it won't be reactive
       df <- get_course_dates_course_id(con, input$course)
       data <- df |> select(course_date, course_date_id)
-      data$course_date <- format(as.Date(data$course_date, origin = "1970-01-01"), "%d.%m.%Y") # make dates for table readable
+      data$course_date <- format_swiss_date_with_origin(data$course_date) # make dates for table readable
       data # return
     })
     
