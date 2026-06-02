@@ -3,53 +3,92 @@ choices_abos <- setNames(
   c("10er-Abo", "3-Monats-Abo", "6-Monats-Abo") # labels (what user sees)
 )
 
+tags$style(HTML("
+  html, body {
+    height: auto !important;
+    overflow-y: auto !important;
+  }
+
+  .tab-content {
+    overflow: visible !important;
+  }
+"))
+
 mod_abos_ui <- function(id) {
   ns <- NS(id)
   
-  tabsetPanel(
-    id = ns("abos_tabs"),
-    
-    tabPanel(
+  navset_card_tab(
+    nav_panel(
       title = "Abos archivieren",
       
-      tagList(
-        h4("Abgelaufene 10er-Abos"),
+      
+      layout_columns(
+        col_widths = c(6, 6),
+      # layout_column_wrap(
+      #   width = 1/2,
         
-        dataTableOutput(ns("abo_10_expired")),
+        card(
+          card_header("Abgelaufene 10er-Abos"),
+          card_body(
+            # div(style = "font-size: 0.7rem;",
+              dataTableOutput(ns("abo_10_expired"))
+            # )
+          ),
+          card_footer(actionButton(ns("archive_abo_10"), "Abo archivieren"))
+        ),
         
-        actionButton(ns("archive_abo_10"), "Abo archivieren", disabled = FALSE),
+        card(
+          card_header("Abgelaufene Monats-Abos"),
+          card_body(DT::dataTableOutput(ns("abo_month_expired"))),
+          card_footer(actionButton(ns("archive_abo_month"), "Abo archivieren"))
+        ),
         
-        hr(),
+        card(
+          card_header("Abo Liste"),
+          card_body(DT::dataTableOutput(ns("abo_list"))),
+          card_footer(actionButton(ns("archive_abo_list"), "Abo archivieren"))
+        ),
         
-        h4("Abgelaufene Monats-Abos"),
-        
-        dataTableOutput(ns("abo_month_expired")),
-        
-        actionButton(ns("archive_abo_month"), "Abo archivieren", disabled = FALSE),
-        
-        hr(),
-        
-        h4("Abo archivieren"),
-        
-        dataTableOutput(ns("abo_list")),
-        
-        actionButton(ns("archive_abo_list"), "Abo archivieren", disabled = FALSE),
-        
-        hr(),
-        
-        h4("Zertifikate für archivierte Abos"),
-        
-        selectInput(ns("therapist"), "Therapeut*in", choices = NULL, multiple = FALSE),
-        
-        h5("Für folgende Personen wird ein Zertifikat generiert:"),
-        
-        tableOutput(ns("certificates_to_generate")),
-        
-        actionButton(ns("make_certificates"), "Zertifikate erstellen", disabled = TRUE)
+        card(
+          card_header("Zertifikate"),
+          card_body(
+            selectInput(ns("therapist"), "Therapeut*in", choices = NULL),
+            tableOutput(ns("certificates_to_generate"))
+          ),
+          card_footer(actionButton(ns("make_certificates"), "Zertifikate erstellen"))
+        )
       )
     ),
-    
-    tabPanel(
+        
+        # value_box(
+        #   h4("Abgelaufene Monats-Abos"),
+        #   
+        #   dataTableOutput(ns("abo_month_expired")),
+        #   
+        #   actionButton(ns("archive_abo_month"), "Abo archivieren", disabled = FALSE)
+        # ),
+        # 
+        # value_box(
+        #   h4("Abo archivieren"),
+        #   
+        #   dataTableOutput(ns("abo_list")),
+        #   
+        #   actionButton(ns("archive_abo_list"), "Abo archivieren", disabled = FALSE)
+        # ),
+        # 
+        # value_box(
+        #   h4("Zertifikate für archivierte Abos"),
+        #   
+        #   selectInput(ns("therapist"), "Therapeut*in", choices = NULL, multiple = FALSE),
+        #   
+        #   h5("Für folgende Personen wird ein Zertifikat generiert:"),
+        #   
+        #   tableOutput(ns("certificates_to_generate")),
+        #   
+        #   actionButton(ns("make_certificates"), "Zertifikate erstellen", disabled = TRUE)
+        # )
+
+    nav_panel(
       title = "Neues Abo erstellen",
       
       tagList(
@@ -65,7 +104,7 @@ mod_abos_ui <- function(id) {
       )
     ),
     
-    tabPanel(
+    nav_panel(
       title = "Abo-Preise",
       
       tagList(
@@ -125,7 +164,11 @@ mod_abos_server <- function(id, con, global_refresh) {
       datatable(
         abo_10_expired_display,
         selection = "single",
-        options = list(pageLength = 10)
+        options = list(
+          scrollX = TRUE,
+          autoWidth = TRUE,
+          pageLength = 5
+        )
       )
       
     })
