@@ -1,31 +1,31 @@
-navbarPage(
+page_navbar(
   title = "PilatesCare",
   
-  tabPanel(
+  nav_panel(
     title = "Anwesenheit",
     
     mod_attendance_ui("attendance", db)
   ),
   
-  tabPanel(
+  nav_panel(
     title = "Abo-Dashboard",
     
     mod_abo_dashboard_ui("abo_dash")
   ),
   
-  tabPanel(
+  nav_panel(
     title = "Abos verwalten",
     
     mod_abos_ui("abos")
   ),
   
-  tabPanel(
+  nav_panel(
     title = "Teilnehmende",
     
     mod_members_ui("members", db)
   ),
   
-  tabPanel(
+  nav_panel(
     title = "Zertifikate",
     
     # this will be shown during rendering to let the user know that something is happening
@@ -46,13 +46,13 @@ navbarPage(
     mod_certificate_ui("certificates", db)
   ),
   
-  tabPanel(
+  nav_panel(
     title = "Termine & Kurse",
     
     mod_courses_ui("courses", db)
   ),
   
-  tabPanel(
+  nav_panel(
     title = "Therapeut*innen",
     
     mod_therapists_ui("therapists")

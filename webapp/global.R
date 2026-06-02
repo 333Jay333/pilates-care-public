@@ -5,6 +5,7 @@ library(DT)
 library(pool)
 library(here)
 library(tidyverse)
+library(bslib)
 
 # Source scripts
 list.files("R", recursive = TRUE, full.names = TRUE) |>
