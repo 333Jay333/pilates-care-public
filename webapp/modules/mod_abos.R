@@ -7,13 +7,118 @@ mod_abos_ui <- function(id) {
   ns <- NS(id)
   
   tagList(
-    h3("Abos verwalten"),
+    tabsetPanel(
+      tabPanel(
+        title = "Abos archivieren",
+        
+        tagList(
+          tags$head(tags$link(rel = "stylesheet", href = "custom.css")),
+          
+          div(style = "margin-top: 2rem;"), # top margin
+          fluidRow(
+            column(
+              6,
+              div(
+                class = "pc-card",
+                tags$p(
+                  class = "pc-section-label", 
+                  tags$i(class = "ti ti-xbox-x"), "Abgelaufene 10er-Abos"
+                ),
+                dataTableOutput(ns("abo_10_expired")),
+                actionButton(
+                  ns("archive_abo_10"), 
+                  tagList(tags$i(class = "ti ti-archive"), "Abo archivieren"), 
+                  class = "btn-primary btn-sm", 
+                  disabled = FALSE
+                )
+              ),
+            ),
+            
+            column(
+              6,
+              div(
+                class = "pc-card",
+                tags$p(
+                  class = "pc-section-label", 
+                  tags$i(class = "ti ti-xbox-x"), "Abgelaufene Monats-Abos"
+                ),
+                dataTableOutput(ns("abo_month_expired")),
+                actionButton(
+                  ns("archive_abo_month"), 
+                  tagList(tags$i(class = "ti ti-archive"), "Abo archivieren"), 
+                  class = "btn-primary btn-sm", 
+                  disabled = FALSE
+                )
+              )
+            )
+          ),
+          
+          fluidRow(
+            column(
+              12,
+              div(
+                class = "pc-card",
+                
+                # Clickable header that toggles the collapse
+                tags$p(
+                  class = "pc-section-label",
+                  style = "cursor: pointer; user-select: none; margin-bottom: 0;",
+                  `data-toggle` = "collapse",
+                  `data-target` = paste0("#", ns("abo_list_collapse")),
+                  tags$i(class = "ti ti-list"), "Aktive Abos archivieren",
+                  tags$i(class = "ti ti-chevron-down", style = "margin-left: auto;")
+                ),
+                
+                # Collapsible content — no "in" class means collapsed by default
+                div(
+                  id = ns("abo_list_collapse"),
+                  class = "collapse",  # add "in" here to start expanded instead
+                  style = "margin-top: 1rem;",
+                  dataTableOutput(ns("abo_list")),
+                  div(
+                    style = "margin-top:5px",
+                    actionButton(
+                      ns("archive_abo_list"),
+                      tagList(tags$i(class = "ti ti-archive"), "Abo archivieren"),
+                      class = "btn-primary btn-sm", 
+                      disabled = FALSE
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          
+          fluidRow(
+            column(
+              12,
+              div(
+                class = "pc-card",
+                tags$p(
+                  class = "pc-section-label", 
+                  tags$i(class = "ti ti-file-certificate"), "Zertifikate für archivierte Abos"
+                ),
+                selectInput(ns("therapist"), "Therapeut*in", choices = NULL, multiple = FALSE),
+                h5(strong("Für folgende Personen wird ein Zertifikat generiert:")),
+                tableOutput(ns("certificates_to_generate")),
+                actionButton(
+                  ns("make_certificates"), 
+                  tagList(tags$i(class = "ti ti-file-plus"), "Zertifikate erstellen"), 
+                  class = "btn-primary btn-sm", 
+                  disabled = TRUE
+                )
+              )
+            )
+          )
+        )
+      )
+    ),
     
     hr(),
     
     h4("Abgelaufene 10er-Abos"),
     
-    dataTableOutput(ns("abo_10_expired")),
+    # dataTableOutput(ns("abo_10_expired")),
     
     actionButton(ns("archive_abo_10"), "Abo archivieren", disabled = FALSE),
     
@@ -21,7 +126,7 @@ mod_abos_ui <- function(id) {
     
     h4("Abgelaufene Monats-Abos"),
     
-    dataTableOutput(ns("abo_month_expired")),
+    # dataTableOutput(ns("abo_month_expired")),
     
     actionButton(ns("archive_abo_month"), "Abo archivieren", disabled = FALSE),
     
@@ -29,21 +134,15 @@ mod_abos_ui <- function(id) {
     
     h4("Abo archivieren"),
     
-    dataTableOutput(ns("abo_list")),
-    
-    actionButton(ns("archive_abo_list"), "Abo archivieren", disabled = FALSE),
-    
     hr(),
     
     h4("Zertifikate für archivierte Abos"),
     
-    selectInput(ns("therapist"), "Therapeut*in", choices = NULL, multiple = FALSE),
+   
     
-    h5("Für folgende Personen wird ein Zertifikat generiert:"),
     
-    tableOutput(ns("certificates_to_generate")),
     
-    actionButton(ns("make_certificates"), "Zertifikate erstellen", disabled = TRUE),
+    
     
     hr(),
     
@@ -70,7 +169,6 @@ mod_abos_ui <- function(id) {
     numericInput(ns("new_price"), "Neuer Abo-Preis", value = 300, min = 0, step = 10),
     
     actionButton(ns("update_price"), "Abo-Preis anpassen")
-    
   )
 }
 
@@ -116,7 +214,10 @@ mod_abos_server <- function(id, con, global_refresh) {
       datatable(
         abo_10_expired_display,
         selection = "single",
-        options = list(pageLength = 10)
+        options = list(
+          pageLength = 10,
+          dom = "t"  # show only the table without search bar (dom = "f"), "show X entries" (dom = "l"), pagination ("p"), Info ("Showing 1 to 10 of 50") ("i"), processing indicator ("r") 
+        )
       )
       
     })
@@ -154,7 +255,10 @@ mod_abos_server <- function(id, con, global_refresh) {
       datatable(
         abo_month_expired_display,
         selection = "single",
-        options = list(pageLength = 10)
+        options = list(
+          pageLength = 10,
+          dom = "t" # show only the table without search bar (dom = "f"), "show X entries" (dom = "l"), pagination ("p"), Info ("Showing 1 to 10 of 50") ("i"), processing indicator ("r") 
+        )
       )
     })
     
