@@ -18,3 +18,8 @@
 /* Tighten default Shiny input spacing */
 .form-group { margin-bottom: 10px; }
 .form-group label { font-size: 13px; }
+
+/* increase the top margin for buttons after a DT table with dom = "t" */
+.datatables + button {
+  margin-top: 1.5rem;
+}

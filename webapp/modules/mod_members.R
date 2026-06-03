@@ -64,7 +64,7 @@ mod_members_ui <- function(id) {
           DTOutput(ns("members_table_edit")),
           
           div(
-            style = "display:flex; justify-content:flex-end; margin-top:10px;",
+            style = "display:flex; justify-content:flex-end; margin-top:15px;",
             actionButton(
               ns("remove"),
               tagList(
