@@ -111,64 +111,82 @@ mod_abos_ui <- function(id) {
             )
           )
         )
+      ),
+      
+      tabPanel(
+        title = "Neues Abo erstellen",
+        
+        tagList(
+          tags$head(tags$link(rel = "stylesheet", href = "custom.css")),
+          
+          div(style = "margin-top: 2rem;"), # top margin
+          fluidRow(
+            column(
+              12,
+              div(
+                class = "pc-card",
+                tags$p(
+                  class = "pc-section-label", 
+                  tags$i(class = "ti ti-plus"), "Neues Abo"
+                ),
+                selectInput(ns("members"), "Person wählen", choices = NULL, multiple = FALSE),
+                selectInput(ns("abo"), "Abo wählen", choices = choices_abos),
+                dateInput(ns("abo_start"), "Abo-Beginn", format = "dd.mm.yyyy"),
+                actionButton(
+                  ns("member_abo_add"),
+                  tagList(tags$i(class = "ti ti-plus"), "Neues Abo erstellen"),
+                  class = "btn-primary btn-sm",
+                  disabled = TRUE
+                )
+              )
+            )
+          )
+        )
+      ),
+      
+      tabPanel(
+        title = "Abo Preise",
+        
+        tagList(
+          tags$head(tags$link(rel = "stylesheet", href = "custom.css")),
+          
+          div(style = "margin-top: 2rem;"), # top margin
+          fluidRow(
+            column(
+              4,
+              div(
+                class = "pc-card",
+                tags$p(
+                  class = "pc-section-label", 
+                  tags$i(class = "ti ti-pig-money"), "Abo-Preise anpassen"
+                ),
+                selectInput(ns("course"), "Kurs wählen", choices = NULL),
+                selectInput(ns("abo"), "Abo wählen", choices = choices_abos),
+                numericInput(ns("new_price"), "Neuer Abo-Preis", value = 300, min = 0, step = 10),
+                actionButton(
+                  ns("update_price"), 
+                  tagList(tags$i(class = "ti ti-cash"), "Abo-Preis anpassen"),
+                  class = "btn-primary btn-sm",
+                  disabled = FALSE
+                )
+              )
+            ),
+            
+            column(
+              8,
+              div(
+                class = "pc-card",
+                tags$p(
+                  class = "pc-section-label", 
+                  tags$i(class = "ti ti-pig-money"), "Aktuelle Abo-Preise"
+                ),
+                uiOutput(ns("price_cards"))
+              )
+            )
+          )
+        )
       )
-    ),
-    
-    hr(),
-    
-    h4("Abgelaufene 10er-Abos"),
-    
-    # dataTableOutput(ns("abo_10_expired")),
-    
-    actionButton(ns("archive_abo_10"), "Abo archivieren", disabled = FALSE),
-    
-    hr(),
-    
-    h4("Abgelaufene Monats-Abos"),
-    
-    # dataTableOutput(ns("abo_month_expired")),
-    
-    actionButton(ns("archive_abo_month"), "Abo archivieren", disabled = FALSE),
-    
-    hr(),
-    
-    h4("Abo archivieren"),
-    
-    hr(),
-    
-    h4("Zertifikate für archivierte Abos"),
-    
-   
-    
-    
-    
-    
-    
-    hr(),
-    
-    h3("Neues Abo erstellen"),
-    
-    selectInput(ns("members"), "Person wählen", choices = NULL, multiple = FALSE),
-    
-    selectInput(ns("abo"), "Abo wählen", choices = choices_abos),
-    
-    dateInput(ns("abo_start"), "Abo-Beginn", format = "dd.mm.yyyy"),
-    
-    actionButton(ns("member_abo_add"), "Neues Abo erstellen", disabled = TRUE),
-    
-    h3("Abo-Preise"),
-    
-    hr(),
-    
-    h4("Abo-Preise anpassen"),
-    
-    selectInput(ns("course"), "Kurs wählen", choices = NULL),
-    
-    selectInput(ns("abo"), "Abo wählen", choices = choices_abos),
-    
-    numericInput(ns("new_price"), "Neuer Abo-Preis", value = 300, min = 0, step = 10),
-    
-    actionButton(ns("update_price"), "Abo-Preis anpassen")
+    )
   )
 }
 
@@ -714,6 +732,30 @@ mod_abos_server <- function(id, con, global_refresh) {
       req(input$course, input$abo, input$new_price)
       
       update_abo_price(con, input$course, input$abo, input$new_price)
+    })
+    
+    # Abo price cards
+    output$price_cards <- renderUI({
+      req(input$course)
+      
+      prices <- data.frame(
+        abo_type = c("10er Abo","3-Monats Abo","6-Monats Abo"),
+        price = c(
+          get_abo_price(con, input$course, 10)$abo_price,
+          get_abo_price(con, input$course, 3)$abo_price,
+          get_abo_price(con, input$course, 6)$abo_price
+        )
+      )
+      
+      # Build one card per row
+      cards <- lapply(seq_len(nrow(prices)), function(i) {
+        div(class = "pc-price-card",
+            tags$p(class = "pc-price-type", prices$abo_type[i]),
+            tags$p(class = "pc-price-value", paste0("CHF ", prices$price[i]))
+        )
+      })
+      
+      div(class = "pc-price-grid", tagList(cards))
     })
   })
 }
