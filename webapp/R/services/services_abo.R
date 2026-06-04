@@ -1,7 +1,6 @@
 # R/services/services_abo.R
 # This script contains functions related to the abos which are used across different modules
 
-
 # function to add abo for a user
 add_abo <- function(con, abo_type, user_id, abo_start) {
   if (abo_type == 10) {
@@ -16,4 +15,20 @@ add_abo <- function(con, abo_type, user_id, abo_start) {
     }
     insert_abo_end(con, user_id, abo_type, abo_start, abo_end) # call insert function for abo db
   }
+}
+
+# function to prepare a badge column for usage in datatables
+abo_badge <- function(abo_type) {
+  styles <- list(
+    "10er Abo"      = "background:#cfe2ff; color:#084298;",  # blue
+    "3-Monats Abo"  = "background:#d1e7dd; color:#0a3622;",  # green
+    "6-Monats Abo"  = "background:#e9d8fd; color:#44267a;"   # purple
+  )
+  
+  style <- styles[[abo_type]]
+  
+  sprintf(
+    '<span style="%s padding:2px 8px; border-radius:4px; font-size:11px;">%s</span>',
+    style, abo_type
+  )
 }
