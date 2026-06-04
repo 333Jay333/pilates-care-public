@@ -7,6 +7,7 @@ mod_members_ui <- function(id) {
   ns <- NS(id)
     
   tagList(
+    # use custom css
     tags$head(tags$link(rel = "stylesheet", href = "custom.css")),
     
     fluidRow(

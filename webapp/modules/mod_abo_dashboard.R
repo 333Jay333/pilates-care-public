@@ -78,7 +78,16 @@ mod_abo_dashboard_server <- function(id, con, global_refresh) {
     output$abo_10_soon_done <- renderDT({
       req(input$still_left)
       
-      data_abo_10()
+      # render
+      datatable(
+        data_abo_10(),
+        options = list(
+          pageLength = 10,
+          language = german_datatable(),
+          dom = "tp"
+        )
+      )
+      
     })
     
     data_abo_month <- reactive({
@@ -108,7 +117,16 @@ mod_abo_dashboard_server <- function(id, con, global_refresh) {
     output$abo_month_soon_done <- renderDT({
       req(input$weeks_still_left)
       
-      data_abo_month()
+      # render
+      datatable(
+        data_abo_month(),
+        options = list(
+          pageLength = 10,
+          language = german_datatable(),
+          dom = "tp"
+        )
+      )
+      
     })
   })
 }
