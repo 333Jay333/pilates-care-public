@@ -216,7 +216,8 @@ mod_abos_server <- function(id, con, global_refresh) {
         selection = "single",
         options = list(
           pageLength = 10,
-          dom = "t"  # show only the table without search bar (dom = "f"), "show X entries" (dom = "l"), pagination ("p"), Info ("Showing 1 to 10 of 50") ("i"), processing indicator ("r") 
+          language = german_datatable(),
+          dom = "tp"  # show only the table without search bar (dom = "f"), "show X entries" (dom = "l"), pagination ("p"), Info ("Showing 1 to 10 of 50") ("i"), processing indicator ("r") 
         )
       )
       
@@ -257,7 +258,8 @@ mod_abos_server <- function(id, con, global_refresh) {
         selection = "single",
         options = list(
           pageLength = 10,
-          dom = "t" # show only the table without search bar (dom = "f"), "show X entries" (dom = "l"), pagination ("p"), Info ("Showing 1 to 10 of 50") ("i"), processing indicator ("r") 
+          language = german_datatable(),
+          dom = "tp" # show only the table without search bar (dom = "f"), "show X entries" (dom = "l"), pagination ("p"), Info ("Showing 1 to 10 of 50") ("i"), processing indicator ("r") 
         )
       )
     })
@@ -498,12 +500,15 @@ mod_abos_server <- function(id, con, global_refresh) {
       abo_list_display <- data_abo_list() |> 
         select(vorname, name, abo_type) |> 
         mutate(
-          abo_type = abo_type |> 
+          abo_type = abo_type |>
             recode_values(
               10 ~ "10er Abo",
               3 ~ "3-Monats Abo",
               6 ~ "6-Monats Abo"
             )
+        ) |>
+        mutate(
+          abo_type = sapply(abo_type, abo_badge)
         ) |> 
         rename(
           "Vorname" = vorname,
@@ -515,6 +520,7 @@ mod_abos_server <- function(id, con, global_refresh) {
       datatable(
         abo_list_display,
         selection = "single",
+        escape = FALSE, # enable HTML rendering
         options = list(pageLength = 10)
       )
     })
