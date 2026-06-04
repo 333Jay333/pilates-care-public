@@ -23,29 +23,53 @@ mod_members_ui <- function(id) {
            column(6, textInput(ns("vorname"), "Vorname")),
            column(6, textInput(ns("name"), "Name"))
           ),
-          selectInput(ns("course"), "Kurs", choices = NULL),
-          fluidRow(
-           column(6, selectInput(ns("abo"), "Abo", choices = choices_abos)),
-           column(6, dateInput(ns("abo_start"), "Abo-Beginn", format = "dd.mm.yyyy"))
+          tags$hr(),
+          
+          # Clickable header that toggles the collapse
+          tags$p(
+            class = "pc-section-label",
+            style = "cursor: pointer; user-select: none; margin-bottom: 0;",
+            `data-toggle` = "collapse",
+            `data-target` = paste0("#", ns("contact_list_collapse")),
+            tags$i(class = "ti ti-address-book"), "Versicherung & Kontakt (optional)",
+            tags$i(class = "ti ti-chevron-down", style = "margin-left: auto;")
+          ),
+          
+          # Collapsible content — no "in" class means collapsed by default
+          div(
+            id = ns("contact_list_collapse"),
+            class = "collapse",  # add "in" here to start expanded instead
+            style = "margin-top: 1rem;",
+            fluidRow(
+              column(6, textInput(ns("kk"), "Krankenkasse")),
+              column(6, textInput(ns("zv"), "Zusatzversicherung")),
+              column(6, textInput(ns("vnr"), "Versicherungs-Nummer")),
+              column(6, textInput(ns("adresse"), "Adresse")),
+              column(6, textInput(ns("plz"), "PLZ/Ort")),
+              column(6, textInput(ns("mail"), "E-Mail"))
+            ),
           ),
           tags$hr(),
           tags$p(
             class = "pc-section-label", 
-            tags$i(class = "ti ti-address-book"), "Versicherung & Kontakt (optional)"
+            tags$i(class = "ti ti-file-description"), "Kurs und Abo"
           ),
+          selectInput(ns("course"), "Kurs", choices = NULL),
           fluidRow(
-           column(6, textInput(ns("kk"), "Krankenkasse")),
-           column(6, textInput(ns("zv"), "Zusatzversicherung")),
-           column(6, textInput(ns("vnr"), "Versicherungs-Nummer")),
-           column(6, textInput(ns("adresse"), "Adresse")),
-           column(6, textInput(ns("plz"), "PLZ/Ort")),
-           column(6, textInput(ns("mail"), "E-Mail"))
+            column(6, selectInput(ns("abo"), "Abo", choices = choices_abos)),
+            column(
+              6,
+              dateInput(ns("abo_start"), "Abo-Beginn", format = "dd.mm.yyyy")
+            )
           ),
-          actionButton(
-            ns("add"), 
-            tagList(tags$i(class = "ti ti-user-plus"), " Hinzufügen"),
-            class = "btn-primary btn-sm", 
-            disabled = TRUE
+          div(
+            style = "margin-top:10px",
+            actionButton(
+              ns("add"), 
+              tagList(tags$i(class = "ti ti-user-plus"), " Hinzufügen"),
+              class = "btn-primary btn-sm", 
+              disabled = TRUE
+            )
           )
         )
       ),
@@ -145,7 +169,11 @@ mod_members_server <- function(id, con, global_refresh) {
       datatable(
         data_display,
         selection = "multiple",
-        options = list(pageLength = 10)
+        options = list(
+          pageLength = 5,
+          language = german_datatable(),
+          dom = "ftp" # show only search, table, and pages
+        )
       )
     })
     
