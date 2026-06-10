@@ -1,13 +1,7 @@
 library(shinyjs) # for showing/hiding elements
 
-mod_attendance_ui <- function(id, con) {
+mod_attendance_ui <- function(id) {
   ns <- NS(id)
-  
-  courses <- get_courses(con)
-  choices_courses <- setNames(
-    courses$course_id, # values (what server receives)
-    courses$kursname # labels (what user sees)
-  )
   
   tagList(
     
@@ -19,7 +13,7 @@ mod_attendance_ui <- function(id, con) {
     
     h4("Anwesenheit hinzufügen"),
     
-    selectInput(ns("course"), "Kurs wählen", choices = choices_courses),
+    selectInput(ns("course"), "Kurs wählen", choices = NULL),
     
     fluidRow(
       column(3, actionButton(ns("last_month"), "Termine letzter Monat")),

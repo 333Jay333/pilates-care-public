@@ -12,7 +12,7 @@ navbarPage(
       )
     ),
     
-    mod_attendance_ui("attendance", db)
+    mod_attendance_ui("attendance")
   ),
   
   tabPanel(
@@ -51,13 +51,13 @@ navbarPage(
       }")
     ),
     
-    mod_certificate_ui("certificates", db)
+    mod_certificate_ui("certificates")
   ),
   
   tabPanel(
     title = "Termine & Kurse",
     
-    mod_courses_ui("courses", db)
+    mod_courses_ui("courses")
   ),
   
   tabPanel(
