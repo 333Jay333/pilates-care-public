@@ -738,6 +738,8 @@ mod_abos_server <- function(id, con, global_refresh) {
     output$price_cards <- renderUI({
       req(input$course)
       
+      course_name <- get_course_id(con, input$course)$kursname
+      
       prices <- data.frame(
         abo_type = c("10er Abo","3-Monats Abo","6-Monats Abo"),
         price = c(
@@ -755,7 +757,17 @@ mod_abos_server <- function(id, con, global_refresh) {
         )
       })
       
-      div(class = "pc-price-grid", tagList(cards))
+      div(
+        # Course name card — full width, outside the grid
+        div(class = "pc-course-card",
+            tags$p(class = "pc-course-name", course_name)
+        ),
+        
+        # Price cards grid below
+        div(class = "pc-price-grid",
+            tagList(cards)
+        )
+      )
     })
   })
 }

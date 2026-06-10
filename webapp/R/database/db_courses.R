@@ -15,6 +15,14 @@ get_courses <- function(con) {
   )
 }
 
+get_course_id <- function(con, course_id) {
+  dbGetQuery(
+    con,
+    "SELECT * FROM courses WHERE course_id = ?",
+    params = list(course_id)
+  )
+}
+
 get_course_id_kursname <- function(con, kursname) {
   dbGetQuery(
     con,
