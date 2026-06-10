@@ -74,6 +74,8 @@ mod_therapists_ui <- function(id) {
 mod_therapists_server <- function(id, con, global_refresh) {
   moduleServer(id, function(input, output, session) {
     
+    ns <- session$ns  # ns function in server -> needed for modals
+    
     # check if inputs exist to enable button
     observe({
       if (nzchar(input$vorname) && nzchar(input$name) && nzchar(input$praxis) && nzchar(input$adresse) && nzchar(input$plz) && nzchar(input$tel) && nzchar(input$mail) && nzchar(input$zsr) && nzchar(input$knr) && nzchar(input$emfit) && nzchar(input$pilat_nr)) {
@@ -91,6 +93,37 @@ mod_therapists_server <- function(id, con, global_refresh) {
     })
     
     # DELETE
+    show_delete_modal <- function() {
+      showModal(
+        modalDialog(
+          title = "Teilnehmende entfernen",
+          
+          "Sind Sie sich sicher?",
+          
+          footer = tagList(
+            modalButton("Abbrechen"), # this button closes the modal when pressed
+            actionButton(
+              ns("remove_yes"),
+              "Entfernen"
+            )
+          )
+        )
+      )
+    }
+    
+    observeEvent(input$remove, {
+      # which are rows selected?
+      selected <- input$therapists_table_edit_rows_selected
+      
+      # Safety check
+      if (length(selected) == 0) {
+        showNotification("Bitte Teilnehmer*in auswählen", type = "warning")
+        return()
+      }
+      
+      show_delete_modal()
+    })
+    
     therapists_data <- reactive({
       global_refresh$therapists # don't forget this or it won't be reactive
       df <- get_therapists(con)
@@ -114,15 +147,7 @@ mod_therapists_server <- function(id, con, global_refresh) {
       )
     })
     
-    observeEvent(input$remove, {
-      # which are rows selected?
-      selected <- input$therapists_table_edit_rows_selected
-      
-      # Safety check
-      if (length(selected) == 0) {
-        showNotification("Bitte Therapeut*in auswählen", type = "warning")
-        return()
-      }
+    observeEvent(input$remove_yes, {
       
       # Get the selected row data
       therapists_remove <- therapists_data()[selected, ]
