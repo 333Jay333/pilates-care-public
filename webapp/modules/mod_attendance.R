@@ -68,7 +68,12 @@ mod_attendance_ui <- function(id) {
                 checkboxGroupInput(ns("members"), "", choices = NULL),
                 
                 hidden(
-                  actionButton(ns("add"), "Answesenheit erfassen", disabled = TRUE)
+                  actionButton(
+                    ns("add"), 
+                    tagList(tags$i(class = "ti ti-plus"), "Answesenheit erfassen"), 
+                    class = "btn-primary",
+                    disabled = TRUE
+                  )
                 )
               )
             )
@@ -103,7 +108,7 @@ mod_attendance_ui <- function(id) {
                       tags$i(class = "ti ti-trash"),
                       " Anwesenheit entfernen"
                     ),
-                    class = "btn-danger btn-sm"
+                    class = "btn-danger"
                   )
                 )
               )

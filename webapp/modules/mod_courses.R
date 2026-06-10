@@ -61,6 +61,7 @@ mod_courses_ui <- function(id) {
                       tags$i(class = "ti ti-trash"),
                       " Entfernen"
                     ),
+                    class = "btn-danger",
                     disabled = FALSE
                   )
                 )
@@ -120,10 +121,17 @@ mod_courses_ui <- function(id) {
                   tags$i(class = "ti ti-calendar-event"), "Termine entfernen"
                 ),
                 DTOutput(ns("course_dates_table_edit")),
-                actionButton(
-                  ns("course_dates_remove"), 
-                  "Termine entfernen", 
-                  disabled = FALSE
+                div(
+                  style = "display:flex; justify-content:flex-end; margin-top:15px;",
+                  actionButton(
+                    ns("course_dates_remove"), 
+                    tagList(
+                      tags$i(class = "ti ti-trash"),
+                      " Entfernen"
+                    ),
+                    class = "btn-danger",
+                    disabled = FALSE
+                  )
                 )
               )
             )

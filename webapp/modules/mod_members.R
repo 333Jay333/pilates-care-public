@@ -68,7 +68,7 @@ mod_members_ui <- function(id) {
             actionButton(
               ns("add"), 
               tagList(tags$i(class = "ti ti-user-plus"), " Hinzufügen"),
-              class = "btn-primary btn-sm", 
+              class = "btn-primary", 
               disabled = TRUE
             )
           )
@@ -96,7 +96,7 @@ mod_members_ui <- function(id) {
                 tags$i(class = "ti ti-trash"),
                 " Entfernen"
               ),
-              class = "btn-danger btn-sm"
+              class = "btn-danger"
             )
           )
         )

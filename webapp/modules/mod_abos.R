@@ -28,7 +28,7 @@ mod_abos_ui <- function(id) {
                 actionButton(
                   ns("archive_abo_10"), 
                   tagList(tags$i(class = "ti ti-archive"), "Abo archivieren"), 
-                  class = "btn-primary btn-sm", 
+                  class = "btn-primary", 
                   disabled = FALSE
                 )
               ),
@@ -46,7 +46,7 @@ mod_abos_ui <- function(id) {
                 actionButton(
                   ns("archive_abo_month"), 
                   tagList(tags$i(class = "ti ti-archive"), "Abo archivieren"), 
-                  class = "btn-primary btn-sm", 
+                  class = "btn-primary", 
                   disabled = FALSE
                 )
               )
@@ -80,7 +80,7 @@ mod_abos_ui <- function(id) {
                     actionButton(
                       ns("archive_abo_list"),
                       tagList(tags$i(class = "ti ti-archive"), "Abo archivieren"),
-                      class = "btn-primary btn-sm", 
+                      class = "btn-primary", 
                       disabled = FALSE
                     )
                   )
@@ -104,7 +104,7 @@ mod_abos_ui <- function(id) {
                 actionButton(
                   ns("make_certificates"), 
                   tagList(tags$i(class = "ti ti-file-plus"), "Zertifikate erstellen"), 
-                  class = "btn-primary btn-sm", 
+                  class = "btn-primary", 
                   disabled = TRUE
                 )
               )
@@ -135,7 +135,7 @@ mod_abos_ui <- function(id) {
                 actionButton(
                   ns("member_abo_add"),
                   tagList(tags$i(class = "ti ti-plus"), "Neues Abo erstellen"),
-                  class = "btn-primary btn-sm",
+                  class = "btn-primary",
                   disabled = TRUE
                 )
               )
@@ -166,7 +166,7 @@ mod_abos_ui <- function(id) {
                 actionButton(
                   ns("update_price"), 
                   tagList(tags$i(class = "ti ti-cash"), "Abo-Preis anpassen"),
-                  class = "btn-primary btn-sm",
+                  class = "btn-primary",
                   disabled = FALSE
                 )
               )
