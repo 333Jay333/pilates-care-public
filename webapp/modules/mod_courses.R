@@ -1,51 +1,136 @@
+choices_day <- setNames(
+  c(1:7), # values (what server receives)
+  c("Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag")
+)
+
 mod_courses_ui <- function(id) {
   ns <- NS(id)
   
   tagList(
     
-    h3("Termine"),
-    
-    hr(),
-    
-    h4("Termine verwalten"),
-    
-    selectInput(ns("course"), "Kurs wählen", choices = NULL),
-    
-    DTOutput(ns("course_dates_table_edit")),
-    
-    actionButton(ns("course_dates_remove"), "Termine entfernen", disabled = FALSE),
-    
-    hr(),
-    
-    h4("Wöchtentliche Termine hinzufügen"),
-    
-    dateInput(ns("course_dates_start"), "Ab welchem Tag sollen Termine hinzugefügt werden?", format = "dd.mm.yyyy"),
-    
-    numericInput(ns("months_to_add"), "Für wie viele Monate sollen Termine hinzugefügt werden?", 12, min = 1, max = 24),
-    
-    actionButton(ns("course_dates_add"), "Termine hinzufügen", disabled = FALSE),
-    
-    hr(),
-    
-    h3("Kurse"),
-    
-    hr(),
-    
-    h4("Kurs hinzufügen"),
-    
-    textInput(ns("kursname"), "Kursname"),
-    
-    selectInput(ns("location"), "Ort", choices = c("Bubenholz", "Fabrik 11", "Giessen")),
-    
-    actionButton(ns("add"), "Kurs hinzufügen", disabled = TRUE),
-    
-    hr(),
-    
-    h4("Kurs entfernen"),
-    
-    DTOutput(ns("courses_table_edit")),
-    
-    actionButton(ns("remove"), "Kurs entfernen", disabled = FALSE)
+    tabsetPanel(
+      tabPanel(
+        title = "Kurse",
+        
+        tagList(
+          tags$head(tags$link(rel = "stylesheet", href = "custom.css")),
+          
+          div(style = "margin-top: 2rem;"), # top margin
+          fluidRow(
+            column(
+              4,
+              div(
+                class = "pc-card",
+                tags$p(
+                  class = "pc-section-label", 
+                  tags$i(class = "ti ti-users-group"), "Kurs hinzufügen"
+                ),
+                textInput(ns("kursname"), "Kursname"),
+                textInput(ns("location"), "Ort"),
+                selectInput(ns("day"), "Wochentag", choices = choices_day),
+                tags$hr(),
+                tags$p(
+                  class = "pc-section-label", 
+                  tags$i(class = "ti ti-pig-money"), "Preise"
+                ),
+                numericInput(ns("price_abo_10"), "Preis 10er-Abo", value = 300, step = 10),
+                numericInput(ns("price_abo_3"), "Preis 3-Monats-Abo", value = 350, step = 10),
+                numericInput(ns("price_abo_6"), "Preis 6-Monats-Abo", value = 700, step = 10),
+                actionButton(
+                  ns("add"), 
+                  tagList(tags$i(class = "ti ti-user-plus"), " Hinzufügen"),
+                  class = "btn-primary",
+                  disabled = TRUE
+                )
+              )
+            ),
+            column(
+              8,
+              div(
+                class = "pc-card",
+                tags$p(
+                  class = "pc-section-label", 
+                  tags$i(class = "ti ti-users-group"), "Kurs entfernen"
+                ),
+                DTOutput(ns("courses_table_edit")),
+                div(
+                  style = "display:flex; justify-content:flex-end; margin-top:15px;",
+                  actionButton(
+                    ns("remove"), 
+                    tagList(
+                      tags$i(class = "ti ti-trash"),
+                      " Entfernen"
+                    ),
+                    disabled = FALSE
+                  )
+                )
+              )
+            )
+          )
+        )
+      ),
+      
+      tabPanel(
+        title = "Termine",
+        
+        tagList(
+          tags$head(tags$link(rel = "stylesheet", href = "custom.css")),
+          
+          div(style = "margin-top: 2rem;"), # top margin
+          fluidRow(
+            column(
+              12,
+              div(
+                class = "pc-card",
+                tags$p(
+                  class = "pc-section-label", 
+                  tags$i(class = "ti ti-users-group"), "Kurs wählen"
+                ),
+                selectInput(ns("course"), "Kurs wählen", choices = NULL)
+              )
+            )
+          ),
+          fluidRow(
+            column(
+              4,
+              div(
+                class = "pc-card",
+                tags$p(
+                  class = "pc-section-label", 
+                  tags$i(class = "ti ti-calendar-event"), "Termine hinzufügen"
+                ),
+                dateInput(ns("course_dates_start"), "Ab welchem Tag sollen Termine hinzugefügt werden?", format = "dd.mm.yyyy"),
+                
+                numericInput(ns("months_to_add"), "Für wie viele Monate sollen Termine hinzugefügt werden?", 12, min = 1, max = 24),
+                
+                actionButton(
+                  ns("course_dates_add"), 
+                  tagList(tags$i(class = "ti ti-plus"), "Termine hinzufügen"),
+                  class = "btn-primary",
+                  disabled = FALSE
+                )
+              )
+            ),
+            column(
+              8,
+              div(
+                class = "pc-card",
+                tags$p(
+                  class = "pc-section-label", 
+                  tags$i(class = "ti ti-calendar-event"), "Termine entfernen"
+                ),
+                DTOutput(ns("course_dates_table_edit")),
+                actionButton(
+                  ns("course_dates_remove"), 
+                  "Termine entfernen", 
+                  disabled = FALSE
+                )
+              )
+            )
+          )
+        )
+      )
+    )
   )
 }
 
@@ -125,7 +210,10 @@ mod_courses_server <- function(id, con, global_refresh) {
       datatable(
         data_display,
         selection = "multiple",
-        options = list(pageLength = 10)
+        options = list(
+          pageLength = 10,
+          language = german_datatable()
+        )
       )
     })
     
@@ -164,10 +252,10 @@ mod_courses_server <- function(id, con, global_refresh) {
       
       course_id <- get_course_id_kursname(con, input$kursname)$course_id
       
-      # insert default abo prices for this course
-      insert_abo_price(con, course_id, 10, 300) # 10er Abo
-      insert_abo_price(con, course_id, 3, 350) # 3-Monats-Abo
-      insert_abo_price(con, course_id, 6, 700) # 6-Monats-Abo
+      # insert prices for this course
+      insert_abo_price(con, course_id, 10, input$price_abo_10) # 10er Abo
+      insert_abo_price(con, course_id, 3, input$price_abo_3) # 3-Monats-Abo
+      insert_abo_price(con, course_id, 6, input$price_abo_6) # 6-Monats-Abo
 
       global_refresh$courses <- global_refresh$courses + 1
     })
@@ -192,7 +280,11 @@ mod_courses_server <- function(id, con, global_refresh) {
       datatable(
         data_display,
         selection = "multiple",
-        options = list(pageLength = 10)
+        options = list(
+          pageLength = 10,
+          language = german_datatable(),
+          dom = "tp"
+        )
       )
     })
 
