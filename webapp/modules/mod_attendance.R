@@ -119,6 +119,8 @@ mod_attendance_ui <- function(id) {
 mod_attendance_server <- function(id, con, global_refresh) {
   moduleServer(id, function(input, output, session) {
     
+    ns <- session$ns  # ns function in server -> needed for modals
+    
     # value to store if specific_course_date is used
     specific <- reactiveVal(FALSE)
     
@@ -422,6 +424,37 @@ mod_attendance_server <- function(id, con, global_refresh) {
     })
     
     # DELETE
+    show_delete_modal <- function() {
+      showModal(
+        modalDialog(
+          title = "Anwesenheit entfernen",
+          
+          "Sind Sie sich sicher?",
+          
+          footer = tagList(
+            modalButton("Abbrechen"), # this button closes the modal when pressed
+            actionButton(
+              ns("remove_yes"),
+              "Entfernen"
+            )
+          )
+        )
+      )
+    }
+    
+    observeEvent(input$remove, {
+      # which are rows selected?
+      selected <- input$attendance_table_edit_rows_selected
+      
+      # Safety check
+      if (length(selected) == 0) {
+        showNotification("Bitte Anwesenheit auswählen", type = "warning")
+        return()
+      }
+      
+      show_delete_modal()
+    })
+    
     attendance_data <- reactive({
       req(input$course)
       global_refresh$attendance # don't forget this or it won't be reactive
@@ -450,15 +483,13 @@ mod_attendance_server <- function(id, con, global_refresh) {
       )
     })
     
-    observeEvent(input$remove, {
+    observeEvent(input$remove_yes, {
+      
+      # close the previous modal
+      removeModal()
+      
       # which are rows selected?
       selected <- input$attendance_table_edit_rows_selected
-      
-      # Safety check
-      if (length(selected) == 0) {
-        showNotification("Bitte Anwesenheit auswählen", type = "warning")
-        return()
-      }
       
       # Get the selected row data
       attendance_remove <- attendance_data()[selected, ]

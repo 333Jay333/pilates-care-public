@@ -213,6 +213,12 @@ mod_members_server <- function(id, con, global_refresh) {
     
     observeEvent(input$remove_yes, {
       
+      # close the previous modal
+      removeModal()
+      
+      # which are rows selected?
+      selected <- input$members_table_edit_rows_selected
+      
       # Get the selected row data
       members_remove <- members_data()[selected, ]
       
