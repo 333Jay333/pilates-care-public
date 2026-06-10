@@ -96,7 +96,7 @@ mod_therapists_server <- function(id, con, global_refresh) {
     show_delete_modal <- function() {
       showModal(
         modalDialog(
-          title = "Teilnehmende entfernen",
+          title = "Therapeut*innen entfernen",
           
           "Sind Sie sich sicher?",
           
@@ -148,6 +148,12 @@ mod_therapists_server <- function(id, con, global_refresh) {
     })
     
     observeEvent(input$remove_yes, {
+      
+      # close the previous modal
+      removeModal()
+      
+      # which are rows selected?
+      selected <- input$therapists_table_edit_rows_selected
       
       # Get the selected row data
       therapists_remove <- therapists_data()[selected, ]
