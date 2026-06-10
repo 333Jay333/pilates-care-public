@@ -7,63 +7,111 @@ mod_attendance_ui <- function(id) {
     
     useShinyjs(), # important for showing/hiding ui elements
     
-    h3("Anwesenheit"),
-    
-    hr(),
-    
-    h4("Anwesenheit hinzufügen"),
-    
-    selectInput(ns("course"), "Kurs wählen", choices = NULL),
-    
-    fluidRow(
-      column(3, actionButton(ns("last_month"), "Termine letzter Monat")),
-      column(3, actionButton(ns("last_three_months"), "Termine letzte 3 Monate")),
-      column(3, actionButton(ns("specific_date"), "Termin manuell auswählen"))
-    ),
-    
-    br(),
-    
-    hidden(
-      div(
-        id = ns("normal_date_ui"),
-        selectInput(ns("course_date"), "Termin wählen", choices = NULL)
-      )
-    ),
-    
-    hidden(
-      div( # needs to be put inside a container to give it an id
-        id = ns("specific_date_ui"),
+    tabsetPanel(
+      tabPanel(
+        title = "Anwesenheit hinzufügen",
+        
         tagList(
-          dateInput(ns("course_date_specific"), "Termin wählen", format = "dd.mm.yyyy"),
+          tags$head(tags$link(rel = "stylesheet", href = "custom.css")),
+          
+          div(style = "margin-top: 2rem;"), # top margin
           fluidRow(
-            column(2, actionButton(ns("minus_one"), "1 Woche vorher")),
-            column(2, actionButton(ns("plus_one"), "1 Woche nachher"))
-          ),
-          br()
+            column(
+              12,
+              div(
+                class = "pc-card",
+                tags$p(
+                  class = "pc-section-label", 
+                  tags$i(class = "ti ti-checkbox"), "Wer war anwesend?"
+                ),
+                
+                selectInput(ns("course"), "Kurs wählen", choices = NULL),
+                
+                h5(strong("Für welche Termine soll die Anwesenheit erfasst werden?")),
+                
+                fluidRow(
+                  column(3, actionButton(ns("last_month"), "Termine letzter Monat")),
+                  column(3, actionButton(ns("last_three_months"), "Termine letzte 3 Monate")),
+                  column(3, actionButton(ns("specific_date"), "Termin manuell auswählen"))
+                ),
+                
+                br(),
+                
+                hidden(
+                  div(
+                    id = ns("normal_date_ui"),
+                    selectInput(ns("course_date"), "Termin wählen", choices = NULL)
+                  )
+                ),
+                
+                hidden(
+                  div( # needs to be put inside a container to give it an id
+                    id = ns("specific_date_ui"),
+                    tagList(
+                      dateInput(ns("course_date_specific"), "Termin wählen", format = "dd.mm.yyyy"),
+                      fluidRow(
+                        column(2, actionButton(ns("minus_one"), "1 Woche vorher")),
+                        column(2, actionButton(ns("plus_one"), "1 Woche nachher"))
+                      ),
+                      br()
+                    )
+                  )
+                ),
+                
+                hidden(
+                  actionButton(ns("load"), "Anwesenheit für dieses Datum erfassen", disabled = TRUE)
+                ),
+                
+                br(),
+                br(),
+                
+                checkboxGroupInput(ns("members"), "", choices = NULL),
+                
+                hidden(
+                  actionButton(ns("add"), "Answesenheit erfassen", disabled = TRUE)
+                )
+              )
+            )
+          )
+        )
+      ),
+      
+      tabPanel(
+        title = "Anwesenheit entfernen",
+        
+        tagList(
+          tags$head(tags$link(rel = "stylesheet", href = "custom.css")),
+          
+          div(style = "margin-top: 2rem;"), # top margin
+          fluidRow(
+            column(
+              12,
+              div(
+                class = "pc-card",
+                tags$p(
+                  class = "pc-section-label", 
+                  tags$i(class = "ti ti-xbox-x"), "Wer war nicht anwesend?"
+                ),
+                DTOutput(ns("attendance_table_edit")),
+                
+                div(
+                  style = "display:flex; justify-content:flex-end; margin-top:15px;",
+                  actionButton(
+                    ns("remove"), 
+                    disabled = FALSE,
+                    tagList(
+                      tags$i(class = "ti ti-trash"),
+                      " Anwesenheit entfernen"
+                    ),
+                    class = "btn-danger btn-sm"
+                  )
+                )
+              )
+            )
+          )
         )
       )
-    ),
-    
-    hidden(
-      actionButton(ns("load"), "Anwesenheit für dieses Datum erfassen", disabled = TRUE)
-    ),
-      
-    br(),
-    br(),
-    
-    checkboxGroupInput(ns("members"), "", choices = NULL),
-
-    hidden(
-      actionButton(ns("add"), "Answesenheit erfassen", disabled = TRUE)
-    ),
-    
-    hr(),
-    
-    h4("Anwesenheit entfernen"),
-    
-    DTOutput(ns("attendance_table_edit")),
-    
-    actionButton(ns("remove"), "Anwesenheit entfernen", disabled = FALSE)
+    )
   )
 }
 
@@ -395,7 +443,10 @@ mod_attendance_server <- function(id, con, global_refresh) {
       datatable(
         data_display,
         selection = "multiple",
-        options = list(pageLength = 10)
+        options = list(
+          pageLength = 10,
+          language = german_datatable()
+        )
       )
     })
     
