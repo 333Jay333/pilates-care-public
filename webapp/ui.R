@@ -55,7 +55,7 @@ navbarPage(
   ),
   
   tabPanel(
-    title = "Termine & Kurse",
+    title = "Kurse & Termine",
     
     mod_courses_ui("courses")
   ),
