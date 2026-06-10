@@ -447,10 +447,6 @@ mod_abos_server <- function(id, con, global_refresh) {
       # save selected member
       selected_member(data)
       
-      # add the new abo
-      add_abo(con, input$abo, data$user_id, input$abo_start)
-      global_refresh$abos <- global_refresh$abos + 1
-      
       # in case the old abo is a 10 abo, set the end date to today
       if (rv_archive_type() == 10) {
         update_abo_end(con, data$abo_id, today())
@@ -458,6 +454,10 @@ mod_abos_server <- function(id, con, global_refresh) {
       
       # archive the old abo
       archive_abo(con, data$abo_id)
+      
+      # add the new abo
+      add_abo(con, input$abo, data$user_id, input$abo_start)
+      global_refresh$abos <- global_refresh$abos + 1
       
       # ask the user if the current member should be added to certificate list
       show_certificate_modal()
