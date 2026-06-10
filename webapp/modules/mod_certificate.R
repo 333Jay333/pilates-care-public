@@ -2,20 +2,8 @@ library(shinyjs) # for disabling the button to prevent double rendering
 library(quarto) # for rendering the pdf
 library(qpdf) # for merging pdfs
 
-mod_certificate_ui <- function(id, con) {
+mod_certificate_ui <- function(id) {
   ns <- NS(id)
-  
-  therapists <- get_therapists(con)
-  choices_therapists <- setNames(
-    therapists$user_id, # values (what server receives)
-    therapists$vorname # labels (what user sees)
-  )
-  
-  active_members <- get_members(con)
-  choices_members <- setNames(
-    active_members$user_id,  # values (what server receives)
-    paste(active_members$vorname, active_members$name)  # labels (what user sees)
-  )
   
   tagList(
     useShinyjs(),  # important
@@ -26,9 +14,9 @@ mod_certificate_ui <- function(id, con) {
     
     h4("Zertifikate erstellen"),
     
-    selectInput(ns("therapist"), "Therapeut*in", choices = choices_therapists, multiple = FALSE),
+    selectInput(ns("therapist"), "Therapeut*in", choices = NULL, multiple = FALSE),
     
-    selectInput(ns("members"), "Teilnehmende", choices = choices_members, multiple = TRUE),
+    selectInput(ns("members"), "Teilnehmende", choices = NULL, multiple = TRUE),
     
     actionButton(ns("make"), "Zertifikate erstellen", disabled = TRUE)
   )

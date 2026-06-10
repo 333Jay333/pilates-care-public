@@ -1,11 +1,5 @@
-mod_courses_ui <- function(id, con) {
+mod_courses_ui <- function(id) {
   ns <- NS(id)
-  
-  courses <- get_courses(con)
-  choices_courses <- setNames(
-    courses$course_id, # values (what server receives)
-    courses$kursname # labels (what user sees)
-  )
   
   tagList(
     
@@ -15,7 +9,7 @@ mod_courses_ui <- function(id, con) {
     
     h4("Termine verwalten"),
     
-    selectInput(ns("course"), "Kurs wählen", choices = choices_courses),
+    selectInput(ns("course"), "Kurs wählen", choices = NULL),
     
     DTOutput(ns("course_dates_table_edit")),
     
