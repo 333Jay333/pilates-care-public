@@ -108,6 +108,8 @@ mod_members_ui <- function(id) {
 mod_members_server <- function(id, con, global_refresh) {
   moduleServer(id, function(input, output, session) {
     
+    ns <- session$ns  # ns function in server -> needed for modals
+    
     # check if courses update
     observeEvent(global_refresh$courses, {
       courses <- get_courses(con)
@@ -151,6 +153,37 @@ mod_members_server <- function(id, con, global_refresh) {
     })
     
     # DELETE
+    show_delete_modal <- function() {
+      showModal(
+        modalDialog(
+          title = "Teilnehmende entfernen",
+          
+          "Sind Sie sich sicher?",
+          
+          footer = tagList(
+            modalButton("Abbrechen"), # this button closes the modal when pressed
+            actionButton(
+              ns("remove_yes"),
+              "Entfernen"
+            )
+          )
+        )
+      )
+    }
+    
+    observeEvent(input$remove, {
+      # which are rows selected?
+      selected <- input$members_table_edit_rows_selected
+      
+      # Safety check
+      if (length(selected) == 0) {
+        showNotification("Bitte Teilnehmer*in auswählen", type = "warning")
+        return()
+      }
+      
+      show_delete_modal()
+    })
+    
     members_data <- reactive({
       global_refresh$members
       df <- get_members(con)
@@ -178,15 +211,7 @@ mod_members_server <- function(id, con, global_refresh) {
       )
     })
     
-    observeEvent(input$remove, {
-      # which are rows selected?
-      selected <- input$members_table_edit_rows_selected
-      
-      # Safety check
-      if (length(selected) == 0) {
-        showNotification("Bitte Teilnehmer*in auswählen", type = "warning")
-        return()
-      }
+    observeEvent(input$remove_yes, {
       
       # Get the selected row data
       members_remove <- members_data()[selected, ]
