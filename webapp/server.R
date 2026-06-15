@@ -6,7 +6,8 @@ function(input, output, session) {
     members = 0,
     courses = 0,
     attendance = 0,
-    abos = 0
+    abos = 0,
+    abo_price = 0
   )
   
   # global reactive data

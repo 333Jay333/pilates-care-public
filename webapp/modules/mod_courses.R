@@ -266,6 +266,7 @@ mod_courses_server <- function(id, con, global_refresh) {
       insert_abo_price(con, course_id, 6, input$price_abo_6) # 6-Monats-Abo
 
       global_refresh$courses <- global_refresh$courses + 1
+      global_refresh$abo_price <- global_refresh$abo_price + 1
     })
 
     # DELETE course
