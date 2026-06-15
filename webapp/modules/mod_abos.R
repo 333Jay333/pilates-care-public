@@ -732,42 +732,46 @@ mod_abos_server <- function(id, con, global_refresh) {
       req(input$course, input$abo, input$new_price)
       
       update_abo_price(con, input$course, input$abo, input$new_price)
+      
+      global_refresh$abo_price <- global_refresh$abo_price + 1
     })
     
     # Abo price cards
-    output$price_cards <- renderUI({
-      req(input$course)
-      
-      course_name <- get_course_id(con, input$course)$kursname
-      
-      prices <- data.frame(
-        abo_type = c("10er Abo","3-Monats Abo","6-Monats Abo"),
-        price = c(
-          get_abo_price(con, input$course, 10)$abo_price,
-          get_abo_price(con, input$course, 3)$abo_price,
-          get_abo_price(con, input$course, 6)$abo_price
+    observeEvent(global_refresh$abo_price, {
+      output$price_cards <- renderUI({
+        req(input$course)
+        
+        course_name <- get_course_id(con, input$course)$kursname
+        
+        prices <- data.frame(
+          abo_type = c("10er Abo","3-Monats Abo","6-Monats Abo"),
+          price = c(
+            get_abo_price(con, input$course, 10)$abo_price,
+            get_abo_price(con, input$course, 3)$abo_price,
+            get_abo_price(con, input$course, 6)$abo_price
+          )
         )
-      )
-      
-      # Build one card per row
-      cards <- lapply(seq_len(nrow(prices)), function(i) {
-        div(class = "pc-price-card",
-            tags$p(class = "pc-price-type", prices$abo_type[i]),
-            tags$p(class = "pc-price-value", paste0("CHF ", prices$price[i]))
+        
+        # Build one card per row
+        cards <- lapply(seq_len(nrow(prices)), function(i) {
+          div(class = "pc-price-card",
+              tags$p(class = "pc-price-type", prices$abo_type[i]),
+              tags$p(class = "pc-price-value", paste0("CHF ", prices$price[i]))
+          )
+        })
+        
+        div(
+          # Course name card — full width, outside the grid
+          div(class = "pc-course-card",
+              tags$p(class = "pc-course-name", course_name)
+          ),
+          
+          # Price cards grid below
+          div(class = "pc-price-grid",
+              tagList(cards)
+          )
         )
       })
-      
-      div(
-        # Course name card — full width, outside the grid
-        div(class = "pc-course-card",
-            tags$p(class = "pc-course-name", course_name)
-        ),
-        
-        # Price cards grid below
-        div(class = "pc-price-grid",
-            tagList(cards)
-        )
-      )
     })
   })
 }
