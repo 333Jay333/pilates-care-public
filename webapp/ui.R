@@ -34,6 +34,12 @@ navbarPage(
   ),
   
   tabPanel(
+    title = "Kurse & Termine",
+    
+    mod_courses_ui("courses")
+  ),
+  
+  tabPanel(
     title = "Zertifikate",
     
     # this will be shown during rendering to let the user know that something is happening
@@ -52,12 +58,6 @@ navbarPage(
     ),
     
     mod_certificate_ui("certificates")
-  ),
-  
-  tabPanel(
-    title = "Kurse & Termine",
-    
-    mod_courses_ui("courses")
   ),
   
   tabPanel(
