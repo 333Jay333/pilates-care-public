@@ -5,3 +5,11 @@ format_swiss_date <- function(x) {
 format_swiss_date_with_origin <- function(x) {
   format(as.Date(x, origin = "1970-01-01"), "%d.%m.%Y")
 }
+
+# takes a year and a weekday coded as integer (Monday = 1, ..., Sunday = 7)
+first_weekday_of_year <- function(year, weekday) {
+  jan1 <- as.Date(paste0(year, "-01-01"))
+  jan1_wday <- as.integer(format(jan1, "%u"))  # 1=Mon ... 7=Sun
+  offset <- (weekday - jan1_wday) %% 7
+  jan1 + offset
+}
