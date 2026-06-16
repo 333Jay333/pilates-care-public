@@ -38,7 +38,7 @@ mod_courses_ui <- function(id) {
                 numericInput(ns("price_abo_6"), "Preis 6-Monats-Abo", value = 700, step = 10),
                 actionButton(
                   ns("add"), 
-                  tagList(tags$i(class = "ti ti-user-plus"), " Hinzufügen"),
+                  tagList(tags$i(class = "ti ti-users-group"), " Hinzufügen"),
                   class = "btn-primary",
                   disabled = TRUE
                 )
@@ -162,6 +162,22 @@ mod_courses_server <- function(id, con, global_refresh) {
     })
     
     # COURSE
+    
+    # check if inputs exist to enable button course add
+    observe({
+      if (
+        nzchar(input$kursname) &&
+        nzchar(input$location) &&
+        !is.null(input$day) &&
+        !is.null(input$price_abo_10) &&
+        !is.null(input$price_abo_3) &&
+        !is.null(input$price_abo_6)
+      ) {
+        updateActionButton(session, "add", disabled = FALSE)
+      } else {
+        updateActionButton(session, "add", disabled = TRUE)
+      }
+    })
     
     # CREATE course
     observeEvent(input$add, {
@@ -325,15 +341,6 @@ mod_courses_server <- function(id, con, global_refresh) {
         delete_course_date_id(con, course_dates_remove[i, ]$course_date_id)
         
         global_refresh$courses <- global_refresh$courses + 1
-      }
-    })
-    
-    # check if inputs exist to enable button course add
-    observe({
-      if (nzchar(input$kursname) && length(input$location) > 0) {
-        updateActionButton(session, "add", disabled = FALSE)
-      } else {
-        updateActionButton(session, "add", disabled = TRUE)
       }
     })
   })

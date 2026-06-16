@@ -186,23 +186,37 @@ mod_members_server <- function(id, con, global_refresh) {
     
     members_data <- reactive({
       global_refresh$members
-      df <- get_members(con)
-      data <- df |> select(vorname, name, user_id)
-      data # return
+      global_refresh$abos
+      data <- get_members_with_abo(con)
+      # return
+      data 
     })
     
     output$members_table_edit <- renderDT({
       data <- members_data()
-      data_display <- data |> select(vorname, name)
-      data_display <- data_display |> 
+      data_display <- data |> 
+        select(vorname, name, abo_type) |> 
+        mutate(
+          abo_type = abo_type |>
+            recode_values(
+              10 ~ "10er Abo",
+              3 ~ "3-Monats Abo",
+              6 ~ "6-Monats Abo"
+            )
+        ) |>
+        mutate(
+          abo_type = sapply(abo_type, abo_badge)
+        ) |> 
         rename(
           "Vorname" = vorname,
-          "Name" = name
+          "Name" = name,
+          "Abo" = abo_type
         )
       
       datatable(
         data_display,
         selection = "multiple",
+        escape = FALSE, # enable HTML rendering
         options = list(
           pageLength = 5,
           language = german_datatable(),

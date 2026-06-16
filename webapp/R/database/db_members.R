@@ -38,6 +38,24 @@ get_members <- function(con) {
   )
 }
 
+get_members_with_abo <- function(con) {
+  dbGetQuery(
+    con, 
+    "
+    SELECT 
+      m.user_id,
+      m.vorname,
+      m.name,
+      ab.abo_type
+    FROM members m
+    LEFT JOIN abos ab 
+      ON m.user_id = ab.user_id
+      AND ab.abo_status = 'active'
+    ORDER BY m.name, m.vorname
+  "
+  )
+}
+
 get_active_members <- function(con) {
   dbGetQuery(
     con,
