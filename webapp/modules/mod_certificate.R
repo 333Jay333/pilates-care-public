@@ -8,17 +8,58 @@ mod_certificate_ui <- function(id) {
   tagList(
     useShinyjs(),  # important
     
-    h3("Zertifikate"),
-    
-    hr(),
-    
-    h4("Zertifikate erstellen"),
-    
-    selectInput(ns("therapist"), "Therapeut*in", choices = NULL, multiple = FALSE),
-    
-    selectInput(ns("members"), "Teilnehmende", choices = NULL, multiple = TRUE),
-    
-    actionButton(ns("make"), "Zertifikate erstellen", disabled = TRUE)
+    tabPanel(
+      title = "Zertifikat erstellen",
+      
+      tagList(
+        tags$head(tags$link(rel = "stylesheet", href = "custom.css")),
+        
+        fluidRow(
+          column(
+            12,
+            
+            # member list
+            div(
+              class = "pc-card",
+              tags$p(
+                class = "pc-section-label", 
+                tags$i(class = "ti ti-file-certificate"), "Für welche Teilnehmer*in soll ein Zertifikat erstellt werden?"
+              ),
+              DTOutput(ns("members_table"))
+            ),
+            
+            # abo list
+            div(
+              class = "pc-card",
+              tags$p(
+                class = "pc-section-label", 
+                tags$i(class = "ti ti-file-certificate"), "Für welches Abo soll ein Zertifikat erstellt werden?"
+              ),
+              DTOutput(ns("abos_table"))
+            ),
+            
+            # therapist and make certificate
+            div(
+              class = "pc-card",
+              tags$p(
+                class = "pc-section-label", 
+                tags$i(class = "ti ti-file-certificate"), "Zertifikat erstellen"
+              ),
+              selectInput(ns("therapist"), "Therapeut*in", choices = NULL, multiple = FALSE),
+              div(
+                style = "margin-top:5px",
+                actionButton(
+                  ns("certificate_make"),
+                  tagList(tags$i(class = "ti ti-file-certificate"), "Zertifikat erstellen"),
+                  class = "btn-primary", 
+                  disabled = FALSE
+                )
+              )
+            )
+          )
+        )
+      )
+    )
   )
 }
 
@@ -41,20 +82,78 @@ mod_certificate_server <- function(id, con, global_refresh) {
       )
     })
     
-    # update choices in case new members get added
-    observeEvent(global_refresh$members, {
-      active_members <- get_members(con)
-      choices_members <- setNames(
-        active_members$user_id,  # values (what server receives)
-        paste(active_members$vorname, active_members$name)  # labels (what user sees)
-      )
+    # members table
+    members_data <- reactive({
+      global_refresh$members
+      df <- get_members(con)
+      data <- df |> select(vorname, name, user_id)
+      data # return
+    })
+    
+    output$members_table <- renderDT({
+      data <- members_data()
+      data_display <- data |> select(vorname, name)
+      data_display <- data_display |> 
+        rename(
+          "Vorname" = vorname,
+          "Name" = name
+        )
       
-      updateSelectInput(
-        session,
-        "members",
-        choices = choices_members
+      datatable(
+        data_display,
+        selection = "single",
+        options = list(
+          pageLength = 5,
+          language = german_datatable()
+        )
       )
     })
+    
+    # observeEvent(input$certificate_member_selected, {
+    #   # which are rows selected?
+    #   selected <- input$members_table_rows_selected
+    #   
+    #   # Safety check
+    #   if (length(selected) == 0) {
+    #     showNotification("Bitte Teilnehmer*in auswählen", type = "warning")
+    #     hide("certificate_abo_ui")
+    #     return()
+    #   }
+    #   
+    #   show("certificate_abo_ui")
+    # })
+    
+    # abos table
+    abos_data <- reactive({
+      global_refresh$abos
+      
+      selected <- input$members_table_rows_selected
+      
+      # Get the selected row data
+      member_user_id <- members_data()[selected, ]$user_id
+      
+      # get abos for this member
+      data <- get_abo_user_id(con, member_user_id)
+      
+      # return
+      data
+    })
+    
+    output$abos_table <- renderDT({
+      data <- abos_data()
+      
+      data_display <- data
+      
+      datatable(
+        data_display,
+        selection = "single",
+        options = list(
+          pageLength = 5,
+          language = german_datatable()
+        )
+      )
+    })
+    
     
     # make certificates
     observeEvent(input$make, {
