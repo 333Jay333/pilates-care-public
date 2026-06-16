@@ -503,6 +503,7 @@ mod_abos_server <- function(id, con, global_refresh) {
     # get data for the table
     data_abo_list <- reactive({
       
+      global_refresh$members
       global_refresh$abos   # important: without this, it doesn't get refreshed when abos change
       
       data <- get_active_abos(con)
@@ -683,7 +684,7 @@ mod_abos_server <- function(id, con, global_refresh) {
         type = "message"
       )
       
-      
+      global_refresh$abos <- global_refresh$abos + 1
     })
     
     # ABO PRICE

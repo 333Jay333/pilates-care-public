@@ -70,7 +70,7 @@ mod_attendance_ui <- function(id) {
                 hidden(
                   actionButton(
                     ns("add"), 
-                    tagList(tags$i(class = "ti ti-plus"), "Answesenheit erfassen"), 
+                    tagList(tags$i(class = "ti ti-checkbox"), "Answesenheit erfassen"), 
                     class = "btn-primary",
                     disabled = TRUE
                   )
@@ -106,7 +106,7 @@ mod_attendance_ui <- function(id) {
                     disabled = FALSE,
                     tagList(
                       tags$i(class = "ti ti-trash"),
-                      " Anwesenheit entfernen"
+                      " Entfernen"
                     ),
                     class = "btn-danger"
                   )
@@ -464,14 +464,17 @@ mod_attendance_server <- function(id, con, global_refresh) {
       req(input$course)
       global_refresh$attendance # don't forget this or it won't be reactive
       data <- get_attendance_course_id(con, input$course)
-      data$course_date <- format_swiss_date_with_origin(data$course_date) # make dates for table readable
-      data # return
+      
+      # return
+      data 
     })
     
     output$attendance_table_edit <- renderDT({
       data <- attendance_data()
-      data_display <- data |> select(course_date, vorname, name)
-      data_display <- data_display |> 
+      data_display <- data |> 
+        select(course_date, vorname, name) |> 
+        arrange(course_date) |> 
+        mutate(course_date = format_swiss_date_with_origin(course_date)) |>   # make dates for table readable
         rename(
           "Termin" = course_date,
           "Vorname" = vorname,

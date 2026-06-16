@@ -25,6 +25,13 @@ abo_badge <- function(abo_type) {
     "6-Monats Abo"  = "background:#e9d8fd; color:#44267a;"   # purple
   )
   
+  # handle missing abo
+  if (is.na(abo_type) || is.null(abo_type)) {
+    return(sprintf(
+      '<span style="background:#e9ecef; color:#6c757d; padding:2px 8px; border-radius:4px; font-size:11px;">kein Abo</span>'
+    ))
+  }
+  
   style <- styles[[abo_type]]
   
   sprintf(
