@@ -161,6 +161,89 @@ mod_courses_server <- function(id, con, global_refresh) {
       )
     })
     
+    # COURSE
+    
+    # CREATE course
+    observeEvent(input$add, {
+      insert_course(con, input$kursname, input$location)
+      
+      course_id <- get_course_id_kursname(con, input$kursname)$course_id
+      
+      # insert prices for this course
+      insert_abo_price(con, course_id, 10, input$price_abo_10) # 10er Abo
+      insert_abo_price(con, course_id, 3, input$price_abo_3) # 3-Monats-Abo
+      insert_abo_price(con, course_id, 6, input$price_abo_6) # 6-Monats-Abo
+      
+      # insert course_dates in the current year for this course
+    
+      # get course_dates
+      all_dates <- seq(first_weekday_of_year(year(today()), as.integer(input$day)), as.Date("2026-12-31"), by = "week")
+      
+      # insert course_cates
+      for (date in all_dates) { 
+        insert_course_date(con, course_id, date)
+      }
+      
+      # show notification
+      showNotification(
+        "Kurs und Termine im aktuellen Jahr hinzugefügt",
+        type = "message"
+      )
+      
+      global_refresh$courses <- global_refresh$courses + 1
+      global_refresh$abo_price <- global_refresh$abo_price + 1
+    })
+    
+    # DELETE course
+    courses_data <- reactive({
+      global_refresh$courses # don't forget this or it won't be reactive
+      df <- get_courses(con)
+      data <- df |> select(kursname, location, course_id)
+      data # return
+    })
+    
+    output$courses_table_edit <- renderDT({
+      data <- courses_data()
+      data_display <- data |> select(kursname, location)
+      data_display <- data_display |>
+        rename(
+          "Kurs" = kursname,
+          "Ort" = location
+        )
+      
+      datatable(
+        data_display,
+        selection = "multiple",
+        options = list(
+          pageLength = 10,
+          language = german_datatable(),
+          dom = "tp"
+        )
+      )
+    })
+    
+    observeEvent(input$remove, {
+      # which are rows selected?
+      selected <- input$courses_table_edit_rows_selected
+      
+      # Safety check
+      if (length(selected) == 0) {
+        showNotification("Bitte Kurs auswählen", type = "warning")
+        return()
+      }
+      
+      # Get the selected row data
+      courses_remove <- courses_data()[selected, ]
+      
+      for (i in 1:nrow(courses_remove)) {
+        delete_course_id(con, courses_remove[i, ]$course_id)
+        
+        global_refresh$courses <- global_refresh$courses + 1
+      }
+    })
+    
+    # COURSE DATES
+    
     # update dateInput value based on group
     observeEvent(input$course, {
       req(input$course)
@@ -251,69 +334,6 @@ mod_courses_server <- function(id, con, global_refresh) {
         updateActionButton(session, "add", disabled = FALSE)
       } else {
         updateActionButton(session, "add", disabled = TRUE)
-      }
-    })
-
-    # CREATE course
-    observeEvent(input$add, {
-      insert_course(con, input$kursname, input$location)
-      
-      course_id <- get_course_id_kursname(con, input$kursname)$course_id
-      
-      # insert prices for this course
-      insert_abo_price(con, course_id, 10, input$price_abo_10) # 10er Abo
-      insert_abo_price(con, course_id, 3, input$price_abo_3) # 3-Monats-Abo
-      insert_abo_price(con, course_id, 6, input$price_abo_6) # 6-Monats-Abo
-
-      global_refresh$courses <- global_refresh$courses + 1
-      global_refresh$abo_price <- global_refresh$abo_price + 1
-    })
-
-    # DELETE course
-    courses_data <- reactive({
-      global_refresh$courses # don't forget this or it won't be reactive
-      df <- get_courses(con)
-      data <- df |> select(kursname, location, course_id)
-      data # return
-    })
-
-    output$courses_table_edit <- renderDT({
-      data <- courses_data()
-      data_display <- data |> select(kursname, location)
-      data_display <- data_display |>
-        rename(
-          "Kurs" = kursname,
-          "Ort" = location
-        )
-      
-      datatable(
-        data_display,
-        selection = "multiple",
-        options = list(
-          pageLength = 10,
-          language = german_datatable(),
-          dom = "tp"
-        )
-      )
-    })
-
-    observeEvent(input$remove, {
-      # which are rows selected?
-      selected <- input$courses_table_edit_rows_selected
-
-      # Safety check
-      if (length(selected) == 0) {
-        showNotification("Bitte Kurs auswählen", type = "warning")
-        return()
-      }
-
-      # Get the selected row data
-      courses_remove <- courses_data()[selected, ]
-
-      for (i in 1:nrow(courses_remove)) {
-        delete_course_id(con, courses_remove[i, ]$course_id)
-
-        global_refresh$courses <- global_refresh$courses + 1
       }
     })
   })
