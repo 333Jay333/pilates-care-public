@@ -677,7 +677,7 @@ mod_abos_server <- function(id, con, global_refresh) {
       }
       
       # add abo
-      insert_abo(con, input$members, input$abo, input$abo_start)
+      add_abo(con, input$abo, input$members, input$abo_start)
       
       showNotification(
         "Abo hinzugefügt",
