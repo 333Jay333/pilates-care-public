@@ -67,6 +67,23 @@ my_theme <- function(x, ...) {
   x
 }
 
+# define a theme that an empty line should be drawn if the parameter is empty
+field_or_line <- function(value, line_width = 40) {
+  if (is.null(value) || value == " " || value == "") {
+    paste(rep("_", line_width), collapse = "")
+    # paste0("\n", paste(rep("_", line_width), collapse = ""))  # newlines add padding
+  } else {
+    value
+  }
+}
+# field_or_line <- function(value, line_width = 60) {
+#   if (is.null(value) || value == " " || value == "") {
+#     paste0("\n", paste(rep("_", line_width), collapse = ""))
+#   } else {
+#     paste0("\n", value)  # pad all values, not just lines
+#   }
+# }
+
 # construct data for the first table
 data <- data.frame(
   col1 = c("Name", "Vorname", "Praxis", "Adresse", "PLZ/Ort", "Tel.", "E-Mail"),
@@ -197,8 +214,17 @@ ft
 # build the data for the third table
 data <- data.frame(
   col1 = c("Name der Krankenkasse", "Zusatzversicherung", "Versicherungs-Nummer", "Name", "Vorname", "Adresse", "PLZ/Ort", "E-Mail"),
-  col2 = c(params$mem_kk, params$mem_zv, params$mem_vnr, params$mem_name, params$mem_vorname, params$mem_adresse, params$mem_plz, params$mem_mail)
+  col2 = c(
+    field_or_line(params$mem_kk),
+    field_or_line(params$mem_zv),
+    field_or_line(params$mem_vnr),
+    field_or_line(params$mem_name),
+    field_or_line(params$mem_vorname),
+    field_or_line(params$mem_adresse),
+    field_or_line(params$mem_plz),
+    field_or_line(params$mem_mail)
   )
+)
 
 # build flextable
 ft <- flextable(data)
