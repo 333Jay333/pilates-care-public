@@ -35,6 +35,7 @@ make_certificates <- function(con, therapist_user_id, members_user_ids, abo_ids)
           pt_praxis = therapist$praxis,
           pt_adresse = therapist$adresse,
           pt_plz = therapist$plz,
+          pt_ort = therapist$ort,
           pt_tel = therapist$tel,
           pt_mail = therapist$mail,
           pt_zsr = therapist$zsr,

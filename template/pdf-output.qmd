@@ -18,6 +18,7 @@ params:
   pt_praxis: NULL
   pt_adresse: NULL
   pt_plz: NULL
+  pt_ort: NULL
   pt_tel: NULL
   pt_mail: NULL
   pt_zsr: NULL
@@ -69,7 +70,7 @@ my_theme <- function(x, ...) {
 # construct data for the first table
 data <- data.frame(
   col1 = c("Name", "Vorname", "Praxis", "Adresse", "PLZ/Ort", "Tel.", "E-Mail"),
-  col2 = c(params$pt_name, params$pt_vorname, params$pt_praxis, params$pt_adresse, params$pt_plz, params$pt_tel, params$pt_mail),
+  col2 = c(params$pt_name, params$pt_vorname, params$pt_praxis, params$pt_adresse, paste(params$pt_plz, params$pt_ort), params$pt_tel, params$pt_mail),
   col3 = c("ZSR-Nummer", "K-Nummer", "EMfit-Nummer", "", "", "", ""),
   col4 = c(params$pt_zsr, params$pt_knr, params$pt_emfit, "", "", "", "")
   )
@@ -227,7 +228,7 @@ ft <- width(ft, j = 2, width = 13.3, unit = "cm")
 ft
 ```
 
-Ort und Datum: Opfikon, `r format(Sys.Date(), "%d.%m.%Y")`
+Ort und Datum: `r params$pt_ort`, `r format(Sys.Date(), "%d.%m.%Y")`
 
 \begin{multicols}{2}
 
