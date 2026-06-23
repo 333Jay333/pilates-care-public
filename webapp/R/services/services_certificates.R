@@ -4,7 +4,7 @@
 # this function expects a db connection, user_id for the therapist and a vector with all the user_ids for the members for which certificates should be generated
 # Then, the function will get the member and abo info and use it to generate a pdf based on the quarto template for each member
 # After generating the pdfs, they will be merged and placed inside a subfolder in the folder Zertifikate with the current date and time as name
-make_certificates <- function(con, therapist_user_id, members_user_ids) {
+make_certificates <- function(con, therapist_user_id, members_user_ids, abo_ids) {
   therapist <- get_therapist_user_id(con, therapist_user_id)
   
   file_path_template <- here("template", "pdf-output.qmd")
@@ -19,7 +19,7 @@ make_certificates <- function(con, therapist_user_id, members_user_ids) {
     for (i in seq_along(members_user_ids)) {
       member <- members_user_ids[i]
       member_data <- get_member_user_id(con, member)
-      abo_data <- get_active_abo_user_id(con, member) 
+      abo_data <- get_abo_abo_id(con, abo_ids[i])
       course_membership <- get_course_membership_user_id(con, member)$course_id
       abo_price <- get_abo_price(con, course_membership, abo_data$abo_type)$abo_price
 
@@ -42,8 +42,8 @@ make_certificates <- function(con, therapist_user_id, members_user_ids) {
           pt_emfit = therapist$emfit,
           pt_pilat_nr = therapist$pilat_nr,
           abo_type = abo_data$abo_type,
-          abo_start = format_swiss_date(abo_data$abo_start),
-          abo_end = format_swiss_date(abo_data$abo_end),
+          abo_start = format_swiss_date_char(abo_data$abo_start),
+          abo_end = format_swiss_date_char(abo_data$abo_end),
           abo_price = abo_price,
           mem_kk = member_data$kk,
           mem_zv = member_data$zv,
