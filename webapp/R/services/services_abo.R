@@ -11,7 +11,7 @@ add_abo <- function(con, abo_type, user_id, abo_start) {
     } else if (abo_type == 6) {
       abo_end <- abo_start + 183
     } else {
-      abo_end <- NULL
+      abo_end <- NA
     }
     insert_abo_end(con, user_id, abo_type, abo_start, abo_end) # call insert function for abo db
   }
