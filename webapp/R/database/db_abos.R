@@ -98,6 +98,19 @@ get_active_abo_user_id <- function(con, user_id) {
   )
 }
 
+get_abo_abo_id <- function(con, abo_id) {
+  dbGetQuery(
+    con, 
+    "
+    SELECT * from abos
+    WHERE abo_id = ?
+    ",
+    params = list(
+      abo_id
+    )
+  )
+}
+
 # query to get how many courses were attended already for members with 10er abo
 # only selects courses if the match the abo_id of the currently active abo
 get_attended_courses_abo_10 <- function(con) {
