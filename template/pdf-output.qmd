@@ -232,11 +232,11 @@ Ort und Datum: Opfikon, `r format(Sys.Date(), "%d.%m.%Y")`
 \begin{multicols}{2}
 
 Unterschrift Anbieter \\
-\includegraphics[width=6.5cm]{"../signature/signed_line.png"}
+\includegraphics[width=6.5cm]{`r paste0("../signatures/therapist_signatures/signed_line_", params$pt_vorname, ".png")`}
 
 \columnbreak
 
 Unterschrift versicherte Person \\
-\includegraphics[width=6.5cm]{"../signature/unsigned_line.png"}
+\includegraphics[width=6.5cm]{"../signatures/unsigned_line.png"}
 
 \end{multicols}
