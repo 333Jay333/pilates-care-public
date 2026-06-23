@@ -525,7 +525,7 @@ mod_abos_server <- function(id, con, global_refresh) {
               3 ~ "3-Monats Abo",
               6 ~ "6-Monats Abo"
             )
-        ) |>
+        ) |> # make the badge for abo_type
         mutate(
           abo_type = sapply(abo_type, abo_badge)
         ) |> 
