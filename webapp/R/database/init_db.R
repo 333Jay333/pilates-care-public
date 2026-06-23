@@ -9,6 +9,7 @@ init_db <- function(db) {
       praxis TEXT NOT NULL,
       adresse TEXT NOT NULL,
       plz TEXT NOT NULL,
+      ort TEXT NOT NULL,
       tel TEXT NOT NULL,
       mail TEXT NOT NULL,
       zsr TEXT NOT NULL,

@@ -27,13 +27,14 @@ mod_therapists_ui <- function(id) {
           fluidRow(
             column(
               6,
-              textInput(ns("plz"), "PLZ / Ort")
+              textInput(ns("plz"), "PLZ")
             ),
             column(
               6,
-              textInput(ns("tel"), "Tel.")
+              textInput(ns("ort"), "Ort")
             )
           ),
+          textInput(ns("tel"), "Tel."),
           textInput(ns("mail"), "E-Mail"),
           tags$hr(),
           tags$p(
@@ -116,7 +117,7 @@ mod_therapists_server <- function(id, con, global_refresh) {
     
     # check if inputs exist to enable button
     observe({
-      if (nzchar(input$vorname) && nzchar(input$name) && nzchar(input$praxis) && nzchar(input$adresse) && nzchar(input$plz) && nzchar(input$tel) && nzchar(input$mail) && !is.null(input$signature) && nzchar(input$zsr) && nzchar(input$knr) && nzchar(input$emfit) && nzchar(input$pilat_nr)) {
+      if (nzchar(input$vorname) && nzchar(input$name) && nzchar(input$praxis) && nzchar(input$adresse) && nzchar(input$plz) && nzchar(input$ort) && nzchar(input$tel) && nzchar(input$mail) && !is.null(input$signature) && nzchar(input$zsr) && nzchar(input$knr) && nzchar(input$emfit) && nzchar(input$pilat_nr)) {
         updateActionButton(session, "add", disabled = FALSE)
       } else {
         updateActionButton(session, "add", disabled = TRUE)
@@ -125,7 +126,7 @@ mod_therapists_server <- function(id, con, global_refresh) {
     
     # CREATE
     observeEvent(input$add, {
-      insert_therapist(con, input$vorname, input$name, input$praxis, input$adresse, input$plz, input$tel, input$mail, input$zsr, input$knr, input$emfit, input$pilat_nr)
+      insert_therapist(con, input$vorname, input$name, input$praxis, input$adresse, input$plz, input$ort, input$tel, input$mail, input$zsr, input$knr, input$emfit, input$pilat_nr)
       
       global_refresh$therapists <- global_refresh$therapists + 1
       
