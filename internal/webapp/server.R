@@ -10,9 +10,6 @@ function(input, output, session) {
     abo_price = 0
   )
   
-  # global reactive data
-  
-  
   # modules
   mod_therapists_server("therapists", db, global_refresh) # id needs to match the id passed to the ui
   
@@ -27,5 +24,21 @@ function(input, output, session) {
   mod_abo_dashboard_server("abo_dash", db, global_refresh)
   
   mod_abos_server("abos", db, global_refresh)
-
+  
+  # quit app
+  observeEvent(input$quit_app, {
+    showModal(modalDialog(
+      title = "App beenden",
+      "Möchten Sie die App wirklich beenden?",
+      footer = tagList(
+        modalButton("Abbrechen"),
+        actionButton("quit_confirm", "Beenden", class = "btn-danger")
+      )
+    ))
+  })
+  
+  observeEvent(input$quit_confirm, {
+    removeModal()
+    shiny::stopApp()
+  })
 }
