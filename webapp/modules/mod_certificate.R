@@ -109,20 +109,6 @@ mod_certificate_server <- function(id, con, global_refresh) {
       )
     })
     
-    # observeEvent(input$certificate_member_selected, {
-    #   # which are rows selected?
-    #   selected <- input$members_table_rows_selected
-    #   
-    #   # Safety check
-    #   if (length(selected) == 0) {
-    #     showNotification("Bitte Teilnehmer*in auswählen", type = "warning")
-    #     hide("certificate_abo_ui")
-    #     return()
-    #   }
-    #   
-    #   show("certificate_abo_ui")
-    # })
-    
     # abos table
     abos_data <- reactive({
       global_refresh$abos
@@ -142,11 +128,44 @@ mod_certificate_server <- function(id, con, global_refresh) {
     output$abos_table <- renderDT({
       data <- abos_data()
       
-      data_display <- data
+      data_display <- data |> 
+        select(abo_type, abo_start, abo_end, abo_status) |> 
+        mutate(
+          abo_type = abo_type |>
+            recode_values(
+              10 ~ "10er Abo",
+              3 ~ "3-Monats Abo",
+              6 ~ "6-Monats Abo"
+            )
+        ) |> # make the badge for abo_type
+        mutate(
+          abo_type = sapply(abo_type, abo_badge)
+        ) |> 
+        mutate(
+          abo_start = format_swiss_date_with_origin(abo_start),
+          abo_end = format_swiss_date_with_origin(abo_end)
+        ) |> 
+        mutate(
+          abo_status = abo_status |> 
+            recode_values(
+              "active" ~ "Aktiv",
+              "archived" ~ "Archiviert"
+            )
+        ) |> 
+        mutate(
+          abo_status = sapply(abo_status, abo_status_badge)
+        ) |> 
+        rename(
+          "Abo Typ" = abo_type,
+          "Abo Start" = abo_start,
+          "Abo Ende" = abo_end,
+          "Abo Status" = abo_status
+        )
       
       datatable(
         data_display,
         selection = "single",
+        escape = FALSE, # enable HTML rendering
         options = list(
           pageLength = 5,
           language = german_datatable()

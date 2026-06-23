@@ -3,7 +3,7 @@ format_swiss_date <- function(x) {
 }
 
 format_swiss_date_with_origin <- function(x) {
-  format(as.Date(x, origin = "1970-01-01"), "%d.%m.%Y")
+  ifelse(x != 0, format(as.Date(x, origin = "1970-01-01"), "%d.%m.%Y"), "")
 }
 
 # takes a year and a weekday coded as integer (Monday = 1, ..., Sunday = 7) and returns the date of the first weekday of that years

@@ -39,3 +39,18 @@ abo_badge <- function(abo_type) {
     style, abo_type
   )
 }
+
+# function to prepare a badge for abo status
+abo_status_badge <- function(abo_status) {
+  styles <- list(
+    "Aktiv" = "background:#d1e7dd; color:#0a3622;",  # green
+    "Archiviert" = "background:#e9ecef; color:#6c757d;" # grey
+  )
+  
+  style <- styles[[abo_status]]
+  
+  sprintf(
+    '<span style="%s padding:2px 8px; border-radius:4px; font-size:11px;">%s</span>',
+    style, abo_status
+  )
+}
