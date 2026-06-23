@@ -70,8 +70,9 @@ make_certificates <- function(con, therapist_user_id, members_user_ids, abo_ids)
     }
     
     showNotification(
-      "Erstellung abgeschlossen",
-      type = "message"
+      "Erstellung abgeschlossen. Bitte schauen Sie im Ordner Zertifikate.",
+      type = "message",
+      duration = 20
     )
   })
 }
