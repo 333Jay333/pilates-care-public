@@ -38,6 +38,18 @@ mod_therapists_ui <- function(id) {
           tags$hr(),
           tags$p(
             class = "pc-section-label",
+            tags$i(class = "ti ti-signature"), " Unterschrift"
+          ),
+          fileInput(
+            ns("signature"),
+            "Unterschrift (PNG)",
+            accept = ".png",
+            buttonLabel = "Datei wählen",
+            placeholder = "Keine Datei gewählt"
+          ),
+          tags$hr(),
+          tags$p(
+            class = "pc-section-label",
             tags$i(class = "ti ti-id-badge"), " Nummern"
           ),
           fluidRow(
@@ -104,7 +116,7 @@ mod_therapists_server <- function(id, con, global_refresh) {
     
     # check if inputs exist to enable button
     observe({
-      if (nzchar(input$vorname) && nzchar(input$name) && nzchar(input$praxis) && nzchar(input$adresse) && nzchar(input$plz) && nzchar(input$tel) && nzchar(input$mail) && nzchar(input$zsr) && nzchar(input$knr) && nzchar(input$emfit) && nzchar(input$pilat_nr)) {
+      if (nzchar(input$vorname) && nzchar(input$name) && nzchar(input$praxis) && nzchar(input$adresse) && nzchar(input$plz) && nzchar(input$tel) && nzchar(input$mail) && !is.null(input$signature) && nzchar(input$zsr) && nzchar(input$knr) && nzchar(input$emfit) && nzchar(input$pilat_nr)) {
         updateActionButton(session, "add", disabled = FALSE)
       } else {
         updateActionButton(session, "add", disabled = TRUE)
@@ -116,6 +128,18 @@ mod_therapists_server <- function(id, con, global_refresh) {
       insert_therapist(con, input$vorname, input$name, input$praxis, input$adresse, input$plz, input$tel, input$mail, input$zsr, input$knr, input$emfit, input$pilat_nr)
       
       global_refresh$therapists <- global_refresh$therapists + 1
+      
+      # save signature
+      # create folder if it doesn't exist yet
+      sig_dir <- here("signatures/therapist_signatures")
+      if (!dir.exists(sig_dir)) dir.create(sig_dir, recursive = TRUE)
+      
+      # build the filename from vorname
+      filename <- paste0("signed_line_", input$vorname, ".png")
+      dest_path <- file.path(sig_dir, filename)
+      
+      # copy the uploaded temp file to the destination
+      file.copy(input$signature$datapath, dest_path, overwrite = TRUE)
     })
     
     # DELETE
