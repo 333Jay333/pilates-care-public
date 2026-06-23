@@ -221,7 +221,6 @@ mod_abos_server <- function(id, con, global_refresh) {
       # make a nice version of the df for the ui
       abo_10_expired_display <- data_abo_10_expired() |> 
         select(vorname, name, still_left) |> 
-        arrange(still_left) |> 
         rename(
           "Name" = name,
           "Vorname" = vorname,
@@ -486,8 +485,6 @@ mod_abos_server <- function(id, con, global_refresh) {
       
       # now update the global refresh such that the list of expired abos gets updated
       global_refresh$abos <- global_refresh$abos + 1
-      
-      print(certificate_list())
     })
     
     observeEvent(input$certificate_no, {
@@ -630,7 +627,7 @@ mod_abos_server <- function(id, con, global_refresh) {
       on.exit(shinyjs::enable("make_certificates"), add = TRUE)
       
       # make certificates
-      make_certificates(con, therapist_user_id = input$therapist, members_user_ids = certificate_list()$user_id)
+      make_certificates(con, therapist_user_id = input$therapist, members_user_ids = certificate_list()$user_id, abo_ids = certificate_list()$abo_id)
     })
     
     # ADD NEW ABO
