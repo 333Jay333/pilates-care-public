@@ -465,6 +465,9 @@ mod_attendance_server <- function(id, con, global_refresh) {
       global_refresh$attendance # don't forget this or it won't be reactive
       data <- get_attendance_course_id(con, input$course)
       
+      # arrange
+      data <- data |> arrange(course_date)
+      
       # return
       data 
     })
@@ -473,7 +476,6 @@ mod_attendance_server <- function(id, con, global_refresh) {
       data <- attendance_data()
       data_display <- data |> 
         select(course_date, vorname, name) |> 
-        arrange(course_date) |> 
         mutate(course_date = format_swiss_date_with_origin(course_date)) |>   # make dates for table readable
         rename(
           "Termin" = course_date,
