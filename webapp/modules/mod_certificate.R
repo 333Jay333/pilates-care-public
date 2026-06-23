@@ -190,6 +190,12 @@ mod_certificate_server <- function(id, con, global_refresh) {
       # get the selected row from abo list
       selected_abo <- input$abos_table_rows_selected
       
+      # Safety check
+      if (length(selected_abo) == 0) {
+        showNotification("Bitte Teilnehmer*in und/oder Abo auswählen", type = "warning")
+        return()
+      }
+      
       # Get the selected row data
       selected_abo_data <- abos_data()[selected_abo, ]
       selected_abo_data_abo_id <- selected_abo_data$abo_id

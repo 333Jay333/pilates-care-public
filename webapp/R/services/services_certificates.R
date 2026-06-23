@@ -43,8 +43,8 @@ make_certificates <- function(con, therapist_user_id, members_user_ids, abo_ids)
           pt_emfit = therapist$emfit,
           pt_pilat_nr = therapist$pilat_nr,
           abo_type = abo_data$abo_type,
-          abo_start = format_swiss_date_char(abo_data$abo_start),
-          abo_end = format_swiss_date_char(abo_data$abo_end),
+          abo_start = format_swiss_date(abo_data$abo_start),
+          abo_end = if (is.na(abo_data$abo_end)) "noch offen" else format_swiss_date(abo_data$abo_end),
           abo_price = abo_price,
           mem_kk = member_data$kk,
           mem_zv = member_data$zv,
@@ -68,5 +68,10 @@ make_certificates <- function(con, therapist_user_id, members_user_ids, abo_ids)
         output = paste(file_path_output, "alle_Zertifikate.pdf", sep = "/")
       )
     }
+    
+    showNotification(
+      "Erstellung abgeschlossen",
+      type = "message"
+    )
   })
 }
