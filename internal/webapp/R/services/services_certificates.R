@@ -7,7 +7,7 @@
 make_certificates <- function(con, therapist_user_id, members_user_ids, abo_ids) {
   therapist <- get_therapist_user_id(con, therapist_user_id)
   
-  file_path_template <- here("template", "pdf-output.qmd")
+  file_path_template <- here("internal","template", "pdf-output.qmd")
   time <- str_replace(substring(now(), first = 12, last = 16), pattern = ":", replacement = "_")
   file_path_output <- here("Zertifikate", paste(format(today(), "%Y_%m_%d"), time, sep = "_"))
 

@@ -67,3 +67,17 @@
   color: #212529;
   margin: 0;
 }
+
+/* quit app button */
+.navbar-nav > li:last-child {
+  margin-left: auto;
+}
+
+.navbar-nav > li:last-child > a {
+  color: #dc3545 !important;
+}
+
+.navbar-nav > li:last-child > a:hover {
+  background-color: #dc3545 !important;
+  color: white !important;
+}

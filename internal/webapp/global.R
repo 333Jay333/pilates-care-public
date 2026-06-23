@@ -6,6 +6,11 @@ library(pool)
 library(here)
 library(tidyverse)
 
+# auto-restore renv on first launch
+if (!requireNamespace("renv", quietly = TRUE) || !renv::status()$synchronized) {
+  renv::restore(prompt = FALSE)
+}
+
 # Source scripts
 list.files("R", recursive = TRUE, full.names = TRUE) |>
   walk(source)
@@ -15,14 +20,14 @@ list.files("modules", full.names = TRUE) |>
   walk(source)
 
 # Set up db folder locally
-if (!dir.exists(here("db"))) {
+if (!dir.exists(here("internal","db"))) {
   dir.create(here("db"), recursive = TRUE)
 }
 
 # Set up connection to db
 db <- dbPool(
   drv = RSQLite::SQLite(),
-  dbname = paste0(here("db","db.sqlite"))
+  dbname = paste0(here("internal","db","db.sqlite"))
 )
 
 # initialise db

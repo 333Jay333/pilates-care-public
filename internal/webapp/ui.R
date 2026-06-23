@@ -64,6 +64,14 @@ navbarPage(
     title = "Therapeut*innen",
     
     mod_therapists_ui("therapists")
+  ),
+  
+  # Quit button in the top right
+  tabPanel(
+    title = tags$span(
+      tags$i(class = "ti ti-power"), " App beenden",
+      onclick = "Shiny.setInputValue('quit_app', Math.random())"
+    )
   )
   
 )
