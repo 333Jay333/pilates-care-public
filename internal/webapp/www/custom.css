@@ -1,0 +1,83 @@
+.pc-card {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.pc-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #444444;
+  margin-bottom: 12px;
+}
+
+/* Tighten default Shiny input spacing */
+.form-group { margin-bottom: 10px; }
+.form-group label { font-size: 13px; }
+
+/* increase the top margin for buttons after a DT table with dom = "t" */
+.datatables + button {
+  margin-top: 1.5rem;
+}
+
+/* abo price cards which automatically align themselves */
+.pc-price-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 1.25rem;
+}
+
+.pc-price-card {
+  background: var(--bs-gray-100, #f8f9fa);
+  border-radius: 8px;
+  padding: 12px 16px;
+  border: 1px solid #e9ecef;
+}
+
+.pc-price-type {
+  font-size: 12px;
+  color: #495057;
+  margin: 0 0 6px;
+}
+
+.pc-price-value {
+  font-size: 22px;
+  font-weight: 500;
+  color: #212529;
+  margin: 0;
+}
+
+.pc-course-card {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.pc-course-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: #212529;
+  margin: 0;
+}
+
+/* quit app button */
+.navbar-nav > li:last-child {
+  margin-left: auto;
+}
+
+.navbar-nav > li:last-child > a {
+  color: #dc3545 !important;
+}
+
+.navbar-nav > li:last-child > a:hover {
+  background-color: #dc3545 !important;
+  color: white !important;
+}
