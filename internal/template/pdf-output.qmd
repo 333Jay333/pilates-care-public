@@ -70,19 +70,11 @@ my_theme <- function(x, ...) {
 # define a theme that an empty line should be drawn if the parameter is empty
 field_or_line <- function(value, line_width = 40) {
   if (is.null(value) || value == " " || value == "") {
-    paste(rep("_", line_width), collapse = "")
-    # paste0("\n", paste(rep("_", line_width), collapse = ""))  # newlines add padding
+    paste0("\n", value)
   } else {
     value
   }
 }
-# field_or_line <- function(value, line_width = 60) {
-#   if (is.null(value) || value == " " || value == "") {
-#     paste0("\n", paste(rep("_", line_width), collapse = ""))
-#   } else {
-#     paste0("\n", value)  # pad all values, not just lines
-#   }
-# }
 
 # construct data for the first table
 data <- data.frame(
@@ -215,15 +207,25 @@ ft
 data <- data.frame(
   col1 = c("Name der Krankenkasse", "Zusatzversicherung", "Versicherungs-Nummer", "Name", "Vorname", "Adresse", "PLZ/Ort", "E-Mail"),
   col2 = c(
-    field_or_line(params$mem_kk),
-    field_or_line(params$mem_zv),
-    field_or_line(params$mem_vnr),
-    field_or_line(params$mem_name),
-    field_or_line(params$mem_vorname),
-    field_or_line(params$mem_adresse),
-    field_or_line(params$mem_plz),
-    field_or_line(params$mem_mail)
+    params$mem_kk,
+    params$mem_zv,
+    params$mem_vnr,
+    params$mem_name,
+    params$mem_vorname,
+    params$mem_adresse,
+    params$mem_plz,
+    params$mem_mail
   )
+  # c(
+  #   field_or_line(params$mem_kk),
+  #   field_or_line(params$mem_zv),
+  #   field_or_line(params$mem_vnr),
+  #   field_or_line(params$mem_name),
+  #   field_or_line(params$mem_vorname),
+  #   field_or_line(params$mem_adresse),
+  #   field_or_line(params$mem_plz),
+  #   field_or_line(params$mem_mail)
+  # )
 )
 
 # build flextable
@@ -249,6 +251,17 @@ ft <- set_table_properties(
 # note: somehow, 18cm seems to be a bit small with only two columns (maybe because of col seperators?) -> that's why I used total width of 18.3cm here
 ft <- width(ft, j = 1, width = 5, unit = "cm")
 ft <- width(ft, j = 2, width = 13.3, unit = "cm")
+
+# bottom borders
+ft <- hline(
+  ft,
+  i = 1:nrow(data),
+  j = 2,
+  border = fp_border(width = 1)
+)
+
+# tall rows
+ft <- height(ft, i = 1:nrow(data), height = 1.2)
 
 # return flextable
 ft
