@@ -21,7 +21,7 @@ list.files("modules", full.names = TRUE) |>
 
 # Set up db folder locally
 if (!dir.exists(here("internal","db"))) {
-  dir.create(here("db"), recursive = TRUE)
+  dir.create(here("internal","db"), recursive = TRUE)
 }
 
 # Set up connection to db

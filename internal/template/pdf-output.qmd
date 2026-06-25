@@ -67,15 +67,6 @@ my_theme <- function(x, ...) {
   x
 }
 
-# define a theme that an empty line should be drawn if the parameter is empty
-field_or_line <- function(value, line_width = 40) {
-  if (is.null(value) || value == " " || value == "") {
-    paste0("\n", value)
-  } else {
-    value
-  }
-}
-
 # construct data for the first table
 data <- data.frame(
   col1 = c("Name", "Vorname", "Praxis", "Adresse", "PLZ/Ort", "Tel.", "E-Mail"),
@@ -94,6 +85,9 @@ ft <- set_header_labels(ft,
 
 # apply the theme
 ft <- my_theme(ft)
+
+# merge col1 and col2 in header
+ft <- merge_at(ft, i = 1, j = 1:2, part = "header") 
 
 # merge col3 and col4 in header
 ft <- merge_at(ft, i = 1, j = 3:4, part = "header") 
@@ -216,16 +210,6 @@ data <- data.frame(
     params$mem_plz,
     params$mem_mail
   )
-  # c(
-  #   field_or_line(params$mem_kk),
-  #   field_or_line(params$mem_zv),
-  #   field_or_line(params$mem_vnr),
-  #   field_or_line(params$mem_name),
-  #   field_or_line(params$mem_vorname),
-  #   field_or_line(params$mem_adresse),
-  #   field_or_line(params$mem_plz),
-  #   field_or_line(params$mem_mail)
-  # )
 )
 
 # build flextable
