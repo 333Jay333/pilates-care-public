@@ -13,8 +13,8 @@ This webapp offers digital management of a Pilates course using SQLite. It is he
 ## Usage
 
 1. Clone the repository to your local machine
-2. In the [signature](signature/) folder, you will find two files. Take [unsigned_line.png](signature/unsigned_line.png), add your signature to it and replace [signed_line.png](signature/signed_line.png) with it to get your signature on the automatically generated certificates.
-3. Inside the [webapp](webapp/) folder, you will find [global.R](webapp/global.R). Run this to start the webapp. The SQLite database will be created automatically on your local machine
+2. In the [signatures](internal/signatures/) folder, you will find two files. Take [unsigned_line.png](internal/signatures/unsigned_line.png), add your signature to it and upload it when adding a therapist to get your signature on the automatically generated certificates.
+3. Inside the [webapp](internal/webapp/) folder, you will find [global.R](internal/webapp/global.R). Run this to start the webapp. The SQLite database will be created automatically on your local machine
 4. Fill the database with information.
 5. Generate certificates automatically. They will be placed in their own folder named Zertifikate.
 
