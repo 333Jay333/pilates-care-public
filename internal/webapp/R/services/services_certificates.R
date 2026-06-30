@@ -1,12 +1,11 @@
 # R/services/services_certificates.R
 # This script contains functions related to the certificates which are used across different modules
 
-# this function expects a db connection, user_id for the therapist and a vector with all the user_ids for the members for which certificates should be generated
+# this function expects a db connection, a vector with user_ids for the therapists and a vector with all the user_ids for the members for which certificates should be generated
 # Then, the function will get the member and abo info and use it to generate a pdf based on the quarto template for each member
 # After generating the pdfs, they will be merged and placed inside a subfolder in the folder Zertifikate with the current date and time as name
-make_certificates <- function(con, therapist_user_id, members_user_ids, abo_ids) {
-  therapist <- get_therapist_user_id(con, therapist_user_id)
-  
+make_certificates <- function(con, therapist_user_ids, members_user_ids, abo_ids) {
+
   file_path_template <- here("internal","template", "pdf-output.qmd")
   time <- str_replace(substring(now(), first = 12, last = 16), pattern = ":", replacement = "_")
   file_path_output <- here("Zertifikate", paste(format(today(), "%Y_%m_%d"), time, sep = "_"))
@@ -22,6 +21,7 @@ make_certificates <- function(con, therapist_user_id, members_user_ids, abo_ids)
       abo_data <- get_abo_abo_id(con, abo_ids[i])
       course_membership <- get_course_membership_user_id(con, member)$course_id
       abo_price <- get_abo_price(con, course_membership, abo_data$abo_type)$abo_price
+      therapist <- get_therapist_user_id(con, therapist_user_ids[i])
 
       incProgress(1/n, detail = paste("Erstelle Zertifikat für", paste(member_data$vorname, member_data$name)))
       

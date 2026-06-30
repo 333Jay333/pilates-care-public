@@ -627,7 +627,7 @@ mod_abos_server <- function(id, con, global_refresh) {
       on.exit(shinyjs::enable("make_certificates"), add = TRUE)
       
       # make certificates
-      make_certificates(con, therapist_user_id = input$therapist, members_user_ids = certificate_list()$user_id, abo_ids = certificate_list()$abo_id)
+      make_certificates(con, therapist_user_ids = rep(input$therapist, nrow(certificate_list())), members_user_ids = certificate_list()$user_id, abo_ids = certificate_list()$abo_id)
     })
     
     # ADD NEW ABO
