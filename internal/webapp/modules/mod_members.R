@@ -7,6 +7,8 @@ mod_members_ui <- function(id) {
   ns <- NS(id)
     
   tagList(
+    useShinyjs(), # important for showing/hiding ui elements
+    
     # use custom css
     tags$head(tags$link(rel = "stylesheet", href = "custom.css")),
     
@@ -49,6 +51,19 @@ mod_members_ui <- function(id) {
               column(6, textInput(ns("plz"), "PLZ/Ort")),
               column(6, textInput(ns("mail"), "E-Mail"))
             ),
+          ),
+          tags$hr(),
+          tags$p(
+            class = "pc-section-label", 
+            tags$i(class = "ti ti-pig-money"), "Rabatt"
+          ),
+          actionButton(ns("discount_yes"), "Gibt es einen Rabatt?"),
+          hidden(
+            div(
+              id = ns("discount_panel"),
+              style = "margin-top: 1rem;",
+              sliderInput(ns("discount"), "Rabatt wählen [%]", min = 0, max = 100, value = 30, step = 1)
+            )
           ),
           tags$hr(),
           tags$p(
@@ -125,6 +140,18 @@ mod_members_server <- function(id, con, global_refresh) {
       )
     })
     
+    observeEvent(input$discount_yes, {
+      show("discount_panel")
+    })
+    
+    discount_factor <- reactive({
+      if (input$discount_yes %% 2 == 1) {  # button has been clicked an odd number of times = active
+        1 - (input$discount / 100)
+      } else {
+        1
+      }
+    })
+    
     # check if inputs exist to enable button
     observe({
       if (nzchar(input$name) && nzchar(input$vorname) && length(input$course) > 0 && length(input$abo) > 0 && !is.null(input$abo_start)) {
@@ -138,15 +165,15 @@ mod_members_server <- function(id, con, global_refresh) {
     observeEvent(input$add, {
       
       # 1. insert member
-      insert_member(con, input$kk, input$zv, input$vnr, input$vorname, input$name, input$adresse, input$plz, input$mail)
-      
+      insert_member(con, input$kk, input$zv, input$vnr, input$vorname, input$name, input$adresse, input$plz, input$mail, discount_factor())
+
       global_refresh$members <- global_refresh$members + 1
-      
+
       # 2. add member to course
       member <- get_member_vorname_name(con, input$vorname, input$name)
-      
+
       insert_course_member(con, member$user_id, input$course)
-      
+
       # 3. add abo for member
       add_abo(con, input$abo, member$user_id, input$abo_start)
       global_refresh$abos <- global_refresh$abos + 1

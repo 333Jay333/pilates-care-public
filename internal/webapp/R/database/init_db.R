@@ -32,6 +32,7 @@ init_db <- function(db) {
       adresse TEXT DEFAULT ' ',
       plz TEXT DEFAULT ' ',
       mail TEXT DEFAULT ' ',
+      discount_factor DOUBLE NOT NULL,
       status TEXT DEFAULT 'active'
     )"
   )

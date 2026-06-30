@@ -132,7 +132,7 @@ mod_therapists_server <- function(id, con, global_refresh) {
       
       # save signature
       # create folder if it doesn't exist yet
-      sig_dir <- here("signatures/therapist_signatures")
+      sig_dir <- here("internal/signatures/therapist_signatures")
       if (!dir.exists(sig_dir)) dir.create(sig_dir, recursive = TRUE)
       
       # build the filename from vorname

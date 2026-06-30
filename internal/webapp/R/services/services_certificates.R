@@ -45,7 +45,7 @@ make_certificates <- function(con, therapist_user_id, members_user_ids, abo_ids)
           abo_type = abo_data$abo_type,
           abo_start = format_swiss_date(abo_data$abo_start),
           abo_end = if (is.na(abo_data$abo_end)) "noch offen" else format_swiss_date(abo_data$abo_end),
-          abo_price = abo_price,
+          abo_price = abo_price * member_data$discount_factor, # apply discount (default 0%)
           mem_kk = member_data$kk,
           mem_zv = member_data$zv,
           mem_vnr = member_data$vnr,
