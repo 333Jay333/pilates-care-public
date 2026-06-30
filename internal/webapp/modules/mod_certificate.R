@@ -267,8 +267,7 @@ mod_certificate_server <- function(id, con, global_refresh) {
       # ensure re-enable of the button no matter what happens
       on.exit(shinyjs::enable("make_certificates"), add = TRUE)
       
-      # make certificate
-      print(certificate_list())
+      # make certificates
       make_certificates(
         con,
         therapist_user_ids = certificate_list()$therapist_user_id,
