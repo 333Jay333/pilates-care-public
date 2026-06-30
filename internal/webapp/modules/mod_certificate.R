@@ -49,11 +49,20 @@ mod_certificate_ui <- function(id) {
               div(
                 style = "margin-top:5px",
                 actionButton(
-                  ns("make_certificate"),
+                  ns("add_certificate"),
                   tagList(tags$i(class = "ti ti-file-certificate"), "Zertifikat erstellen"),
                   class = "btn-primary", 
                   disabled = FALSE
                 )
+              ),
+              tags$hr(),
+              h5(strong("Für folgende Personen wird ein Zertifikat generiert:")),
+              tableOutput(ns("certificates_to_generate")),
+              actionButton(
+                ns("make_certificates"), 
+                tagList(tags$i(class = "ti ti-file-plus"), "Zertifikate erstellen"), 
+                class = "btn-primary", 
+                disabled = TRUE
               )
             )
           )
@@ -66,7 +75,7 @@ mod_certificate_ui <- function(id) {
 
 mod_certificate_server <- function(id, con, global_refresh) {
   moduleServer(id, function(input, output, session) {
-  
+    
     # update choices in case new therapists get added
     observeEvent(global_refresh$therapists, {
       therapists <- get_therapists(con)
@@ -177,15 +186,20 @@ mod_certificate_server <- function(id, con, global_refresh) {
       )
     })
     
-    # make certificate
-    observeEvent(input$make_certificate, {
+    # variable for storing members for which certificate shall be generated
+    certificate_list <- reactiveVal(
+      data.frame(
+        member_user_id = integer(),
+        abo_id = integer(),
+        vorname = character(),
+        name = character(),
+        therapist_user_id = integer()
+      )
+    )
+    
+    # add certificate to list
+    observeEvent(input$add_certificate, {
       req(input$therapist)
-      
-      # ---- disable button immediately ----
-      shinyjs::disable("make_certificate")
-      
-      # ensure re-enable of the button no matter what happens
-      on.exit(shinyjs::enable("make_certificate"), add = TRUE)
       
       # get the selected row from abo list
       selected_abo <- input$abos_table_rows_selected
@@ -200,9 +214,67 @@ mod_certificate_server <- function(id, con, global_refresh) {
       selected_abo_data <- abos_data()[selected_abo, ]
       selected_abo_data_abo_id <- selected_abo_data$abo_id
       selected_abo_data_user_id <- selected_abo_data$user_id
+      member <- get_member_user_id(con, selected_abo_data_user_id)
+      
+      # save in certificate list
+      certificate_list(
+        rbind(
+          certificate_list(),
+          data.frame(
+            member_user_id = selected_abo_data_user_id,
+            abo_id = selected_abo_data_abo_id,
+            vorname = member$vorname,
+            name = member$name,
+            therapist_user_id = input$therapist
+          )
+        )
+      )
+    })
+    
+    # get data for certificate table
+    data_certificates <- reactive({
+      
+      members <- certificate_list() |> 
+        select(vorname, name) |> 
+        rename(
+          "Vorname" = vorname,
+          "Name" = name
+        )
+      
+      # return
+      members
+    })
+    
+    # render certificate table
+    output$certificates_to_generate <- renderTable(
+      data_certificates()
+    )
+    
+    # enable button
+    observe({
+      if (nrow(certificate_list()) > 0) {
+        updateActionButton(session, "make_certificates", disabled = FALSE)
+      } else {
+        updateActionButton(session, "make_certificates", disabled = TRUE)
+      }
+    })
+    
+    # make certificates
+    observeEvent(input$make_certificates, {
+      # ---- disable button immediately ----
+      shinyjs::disable("make_certificates")
+      
+      # ensure re-enable of the button no matter what happens
+      on.exit(shinyjs::enable("make_certificates"), add = TRUE)
       
       # make certificate
-      make_certificates(con, input$therapist, members_user_ids = selected_abo_data_user_id, abo_id = selected_abo_data_abo_id)
+      print(certificate_list())
+      make_certificates(
+        con,
+        therapist_user_ids = certificate_list()$therapist_user_id,
+        members_user_ids = certificate_list()$member_user_id,
+        abo_id = certificate_list()$abo_id
+      )
     })
   })
 }
