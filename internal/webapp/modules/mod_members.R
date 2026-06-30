@@ -165,7 +165,7 @@ mod_members_server <- function(id, con, global_refresh) {
     observeEvent(input$add, {
       
       # 1. insert member
-      insert_member(con, input$kk, input$zv, input$vnr, input$vorname, input$name, input$adresse, input$plz, input$mail)
+      insert_member(con, input$kk, input$zv, input$vnr, input$vorname, input$name, input$adresse, input$plz, input$mail, discount_factor())
 
       global_refresh$members <- global_refresh$members + 1
 
