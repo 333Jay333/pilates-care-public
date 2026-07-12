@@ -4,4 +4,4 @@
 .Ruserdata
 db/
 Zertifikate/
-signatures/therapist_signatures
+internal/signatures/therapist_signatures/
